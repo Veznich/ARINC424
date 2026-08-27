@@ -42,6 +42,7 @@ namespace Arkanoid.Gameplay
         private IDisposable _destroyedSub;
         private IDisposable _lostSub;
         private IDisposable _levelSub;
+        private IDisposable _launchedSub;
         private Transform _dropRoot;
         private Transform _ballRoot;
 
@@ -78,6 +79,7 @@ namespace Arkanoid.Gameplay
             _destroyedSub?.Dispose();
             _lostSub?.Dispose();
             _levelSub?.Dispose();
+            _launchedSub?.Dispose();
         }
 
         private void Subscribe()
@@ -85,6 +87,7 @@ namespace Arkanoid.Gameplay
             _destroyedSub?.Dispose();
             _lostSub?.Dispose();
             _levelSub?.Dispose();
+            _launchedSub?.Dispose();
             if (_eventBus == null)
             {
                 return;
@@ -92,6 +95,17 @@ namespace Arkanoid.Gameplay
 
             _destroyedSub = _eventBus.Subscribe<BlockDestroyedEvent>(OnBlockDestroyed);
             _lostSub = _eventBus.Subscribe<BallLostEvent>(_ => OnBallLost());
+            _launchedSub = _eventBus.Subscribe<BallLaunchedEvent>(e =>
+            {
+                for (var i = 0; i < _extraBalls.Count; i++)
+                {
+                    var b = _extraBalls[i];
+                    if (b != null && b.IsAlive && b.IsMagnetDocked)
+                    {
+                        b.LaunchFromMagnetDock(e.Direction);
+                    }
+                }
+            });
             _levelSub = _eventBus.Subscribe<LevelStartedEvent>(_ =>
             {
                 ClearDrops();
@@ -118,11 +132,9 @@ namespace Arkanoid.Gameplay
 
             if (_dropPool == null)
             {
-                var prefabGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                prefabGo.name = "DropPrefab";
+                var prefabGo = new GameObject("DropPrefab");
                 prefabGo.SetActive(false);
                 prefabGo.transform.SetParent(_dropRoot, false);
-                Destroy(prefabGo.GetComponent<BoxCollider>());
                 var drop = prefabGo.AddComponent<PowerUpDrop>();
                 _dropPool = new ObjectPool<PowerUpDrop>(drop, _dropRoot, 12);
             }
@@ -202,26 +214,27 @@ namespace Arkanoid.Gameplay
                 return;
             }
 
-            var dt = Time.deltaTime * _slowMul;
-            TickDrops(dt);
-            TickTimers(Time.deltaTime); // таймеры UI в реальном времени
-            TickLaser(dt);
-            TickExtraBalls(dt);
+            var fallDt = Time.deltaTime * _slowMul;
+            TickDrops(fallDt);
+            TickTimers(Time.deltaTime);
+            TickLaser(fallDt);
+            TickExtraBalls(fallDt);
             SyncBallFireball();
         }
 
-        private void TickDrops(float dt)
+        private void TickDrops(float fallDt)
         {
             if (_paddle == null)
             {
                 return;
             }
 
-            var fall = (_config != null ? _config.fallSpeed : 2f) * dt;
-            var magnet = _magnet ? (_config != null ? _config.magnetPullSpeed : 5f) * dt : 0f;
+            var fall = (_config != null ? _config.fallSpeed : 2.5f) * fallDt;
             var halfW = _paddle.HalfWidth;
             var halfH = _paddleConfig != null ? _paddleConfig.height * 0.5f : 0.2f;
             var p = _paddle.Position;
+            const float pickPadX = 0.65f;
+            const float pickPadY = 0.75f;
 
             for (var i = _activeDrops.Count - 1; i >= 0; i--)
             {
@@ -233,24 +246,15 @@ namespace Arkanoid.Gameplay
                 }
 
                 var pos = d.transform.position;
-                if (_magnet)
-                {
-                    var to = (p - pos);
-                    if (to.sqrMagnitude > 0.001f)
-                    {
-                        pos += to.normalized * magnet;
-                    }
-                }
-
                 pos.y -= fall;
                 pos.z = 0f;
                 d.transform.position = pos;
-                d.TickVisual(dt);
-                d.LifeLeft -= dt;
+                d.TickVisual(fallDt);
+                d.LifeLeft -= fallDt;
 
                 var pickup =
-                    Mathf.Abs(pos.x - p.x) <= halfW + 0.3f &&
-                    Mathf.Abs(pos.y - p.y) <= halfH + 0.35f;
+                    Mathf.Abs(pos.x - p.x) <= halfW + pickPadX &&
+                    Mathf.Abs(pos.y - p.y) <= halfH + pickPadY;
 
                 if (pickup)
                 {
@@ -260,7 +264,9 @@ namespace Arkanoid.Gameplay
                     continue;
                 }
 
-                if (d.LifeLeft <= 0f || (_bounds != null && pos.y < _bounds.MinY))
+                var belowPaddle = pos.y < PlayfieldLayout.PaddleY - 0.85f;
+                var belowField = _bounds != null && pos.y < _bounds.MinY;
+                if (belowField || (belowPaddle && d.LifeLeft <= 0f))
                 {
                     ReleaseDrop(d, i);
                 }
@@ -313,24 +319,26 @@ namespace Arkanoid.Gameplay
                 case PowerUpType.Fireball:
                     _fireball = true;
                     _fireballPierce = _config != null ? _config.fireballPierceCount : 2;
-                    SetTimed(type, _config.fireballDuration);
+                    SetTimed(type, _config != null ? _config.fireballDuration : 5f);
                     break;
                 case PowerUpType.WidePaddle:
                     _paddle?.SetWidthScale(_paddleConfig != null ? _paddleConfig.wideScaleMultiplier : 1.5f);
-                    SetTimed(type, _config.widePaddleDuration);
+                    SetTimed(type, _config != null ? _config.widePaddleDuration : 6f);
                     break;
                 case PowerUpType.SlowTime:
                     _slowMul = _config != null ? _config.slowTimeScale : 0.6f;
-                    _ball?.ApplyTemporarySlow(_config.slowTimeDuration, _slowMul);
-                    SetTimed(type, _config.slowTimeDuration);
+                    _ball?.ApplyTemporarySlow(
+                        _config != null ? _config.slowTimeDuration : 4f,
+                        _slowMul);
+                    SetTimed(type, _config != null ? _config.slowTimeDuration : 4f);
                     break;
                 case PowerUpType.Laser:
                     _laserTimer = 0f;
-                    SetTimed(type, _config.laserDuration);
+                    SetTimed(type, _config != null ? _config.laserDuration : 5f);
                     break;
                 case PowerUpType.Magnet:
                     _magnet = true;
-                    SetTimed(type, _config.magnetDuration);
+                    SetTimed(type, _config != null ? _config.magnetDuration : 10f);
                     break;
             }
 
@@ -398,10 +406,23 @@ namespace Arkanoid.Gameplay
                     break;
                 case PowerUpType.Magnet:
                     _magnet = false;
+                    ReleaseMagnetDockedExtras();
                     break;
             }
 
             _eventBus?.Publish(new PowerUpExpiredEvent(type));
+        }
+
+        private void ReleaseMagnetDockedExtras()
+        {
+            for (var i = 0; i < _extraBalls.Count; i++)
+            {
+                var b = _extraBalls[i];
+                if (b != null && b.IsAlive && b.IsMagnetDocked)
+                {
+                    b.LaunchFromMagnetDock(Vector3.up);
+                }
+            }
         }
 
         private void TickLaser(float dt)
@@ -489,7 +510,7 @@ namespace Arkanoid.Gameplay
                     continue;
                 }
 
-                b.Tick(dt * _slowMul);
+                b.Tick(dt * _slowMul, _magnet);
                 if (_fireball)
                 {
                     b.SetFireball(true, _fireballPierce);
@@ -558,12 +579,7 @@ namespace Arkanoid.Gameplay
                 Expire(PowerUpType.Laser);
             }
 
-            if (_timers.ContainsKey(PowerUpType.Magnet))
-            {
-                _timers.Remove(PowerUpType.Magnet);
-                _durations.Remove(PowerUpType.Magnet);
-                Expire(PowerUpType.Magnet);
-            }
+            // Magnet клеит мяч к платформе — при потере мяча не сбрасываем
 
             PublishTimers();
         }
@@ -577,6 +593,7 @@ namespace Arkanoid.Gameplay
             _slowMul = 1f;
             _laserTimer = 0f;
             _paddle?.SetWidthScale(1f);
+            ReleaseMagnetDockedExtras();
             _timers.Clear();
             _durations.Clear();
             if (!keepBalls)
@@ -619,5 +636,6 @@ namespace Arkanoid.Gameplay
 
         public bool HasFireball => _fireball;
         public int FireballPierce => _fireballPierce;
+        public bool IsMagnetActive => _magnet;
     }
 }

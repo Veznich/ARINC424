@@ -15,15 +15,15 @@ MonoBehaviour:
   dropChance: 0.2
   lifeBonusShareOfDrops: 0.05
   coinDropChance: 0.3
-  fallSpeed: 2
-  lifetimeSeconds: 5
-  magnetPullSpeed: 5
+  fallSpeed: 2.5
+  lifetimeSeconds: 14
+  magnetPullSpeed: 22
   maxBalls: 3
   fireballDuration: 5
   widePaddleDuration: 6
   slowTimeDuration: 4
   laserDuration: 5
-  magnetDuration: 7
+  magnetDuration: 10
   slowTimeScale: 0.6
   laserInterval: 0.5
   fireballPierceCount: 2

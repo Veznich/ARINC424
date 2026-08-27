@@ -26,6 +26,8 @@
 | Платформа | Z-depth ≥ `0.9`, bevel map, cyan |
 | Мяч | Сфера + sphere-shade map |
 | Фон | `StarfieldBackground`, `starBrightness ≈ 0.16` |
+| Потолок / HUD | Камера: запас сверху ≥8% кадра (`PlayfieldLayout`), мяч не заходит под статус-бар |
+| Дропы | Не деспавнятся в воздухе по таймеру — только ниже платформы / MinY |
 
 ## HUD (статус-бар)
 

@@ -10,7 +10,7 @@
 | Типы / конфиг | `PowerUps/PowerUpType.cs`, `Configs/PowerUpConfig` |
 | Drop | `PowerUps/PowerUpDrop.cs` + pool |
 | Сервис | `PowerUps/PowerUpService.cs` |
-| UI таймеров | `UI/PowerUpTimersHud.cs` |
+| UI таймеров | Ряд **3D-значков** над платформой; падающие дропы — те же 3D-иконки (не кубы) |
 | События | `BlockDestroyed` → drop; `PowerUp*` events |
 
 ## Список бонусов
@@ -23,7 +23,7 @@
 | Multi Ball | +1 мяч (макс 3) | до потери |
 | Laser | Луч с платформы вверх каждые 0.5 с | 5 с |
 | Shield | 1 раз спасает от потери мяча | до срабатывания |
-| Magnet | Дропы тянутся к платформе | 7 с |
+| Magnet | Мяч прилипает к платформе; tap — запуск | 10 с |
 | +1 Life | +1 жизнь (макс из PlayerConfig) | мгновенно |
 
 ## Правила

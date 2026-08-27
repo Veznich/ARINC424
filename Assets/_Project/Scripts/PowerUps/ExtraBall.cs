@@ -15,8 +15,12 @@ namespace Arkanoid.Gameplay
         private bool _alive;
         private bool _fireball;
         private int _pierceLeft;
+        private bool _magnetDocked;
+        private float _dockOffsetX;
+        private const float DockOffsetY = 0.55f;
 
         public bool IsAlive => _alive;
+        public bool IsMagnetDocked => _alive && _magnetDocked;
 
         public void Launch(
             Vector3 position,
@@ -39,6 +43,8 @@ namespace Arkanoid.Gameplay
             _alive = true;
             _fireball = false;
             _pierceLeft = 0;
+            _magnetDocked = false;
+            _dockOffsetX = 0f;
             gameObject.SetActive(true);
         }
 
@@ -51,13 +57,36 @@ namespace Arkanoid.Gameplay
         public void Kill()
         {
             _alive = false;
+            _magnetDocked = false;
             gameObject.SetActive(false);
         }
 
-        public void Tick(float dt)
+        public void LaunchFromMagnetDock(Vector3 direction)
+        {
+            if (!_alive || !_magnetDocked)
+            {
+                return;
+            }
+
+            _magnetDocked = false;
+            if (direction.sqrMagnitude < 0.0001f)
+            {
+                direction = Vector3.up;
+            }
+
+            _velocity = direction.normalized * _speed;
+        }
+
+        public void Tick(float dt, bool magnetActive = false)
         {
             if (!_alive)
             {
+                return;
+            }
+
+            if (_magnetDocked)
+            {
+                FollowPaddle();
                 return;
             }
 
@@ -112,17 +141,38 @@ namespace Arkanoid.Gameplay
             {
                 var pp = _paddle.Position;
                 var top = pp.y + _halfPaddleH;
-                if (Mathf.Abs(pos.x - pp.x) <= _paddle.HalfWidth + _radius &&
+                var halfW = _paddle.HalfWidth;
+                if (Mathf.Abs(pos.x - pp.x) <= halfW + _radius &&
                     pos.y - _radius <= top &&
                     pos.y + _radius >= pp.y - _halfPaddleH)
                 {
+                    if (magnetActive)
+                    {
+                        _dockOffsetX = Mathf.Clamp(pos.x - pp.x, -halfW, halfW);
+                        _magnetDocked = true;
+                        _velocity = Vector3.zero;
+                        FollowPaddle();
+                        return;
+                    }
+
                     pos.y = top + _radius + 0.01f;
-                    var factor = (pos.x - pp.x) / Mathf.Max(0.01f, _paddle.HalfWidth);
+                    var factor = (pos.x - pp.x) / Mathf.Max(0.01f, halfW);
                     _velocity = Quaternion.Euler(0f, 0f, -factor * 50f) * Vector3.up * _speed;
                 }
             }
 
             transform.position = pos;
+        }
+
+        private void FollowPaddle()
+        {
+            if (_paddle == null)
+            {
+                return;
+            }
+
+            var p = _paddle.Position;
+            transform.position = new Vector3(p.x + _dockOffsetX, p.y + DockOffsetY, 0f);
         }
     }
 }

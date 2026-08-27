@@ -2,15 +2,14 @@ using UnityEngine;
 
 namespace Arkanoid.Gameplay
 {
-    /// <summary>Падающий бонус (визуал + тип).</summary>
+    /// <summary>Падающий бонус — 3D-значок эффекта.</summary>
     public sealed class PowerUpDrop : MonoBehaviour
     {
-        private MeshRenderer _renderer;
-        private Material _mat;
-
         public PowerUpType Type { get; private set; }
         public float LifeLeft { get; set; }
         public bool IsAlive { get; private set; }
+
+        private Transform _visual;
 
         public void Setup(PowerUpType type, float lifetime, Vector3 position)
         {
@@ -18,9 +17,18 @@ namespace Arkanoid.Gameplay
             LifeLeft = lifetime;
             IsAlive = true;
             transform.position = position;
-            transform.localScale = Vector3.one * 0.45f;
+            transform.localScale = Vector3.one;
             transform.rotation = Quaternion.identity;
-            ApplyColor();
+
+            if (_visual == null)
+            {
+                var go = new GameObject("Visual");
+                go.transform.SetParent(transform, false);
+                _visual = go.transform;
+            }
+
+            PowerUpIcon3D.Build(_visual, type);
+            _visual.localScale = Vector3.one * 2.04f; // −40% от 3.4
             gameObject.SetActive(true);
         }
 
@@ -29,41 +37,17 @@ namespace Arkanoid.Gameplay
             IsAlive = false;
             Type = PowerUpType.Fireball;
             LifeLeft = 0f;
+            if (_visual != null)
+            {
+                PowerUpIcon3D.Clear(_visual);
+            }
         }
 
         public void TickVisual(float dt)
         {
-            transform.Rotate(0f, 90f * dt, 45f * dt, Space.Self);
-        }
-
-        private void Awake()
-        {
-            _renderer = GetComponent<MeshRenderer>();
-        }
-
-        private void ApplyColor()
-        {
-            if (_renderer == null)
+            if (_visual != null)
             {
-                _renderer = GetComponent<MeshRenderer>();
-            }
-
-            var c = ColorFor(Type);
-            if (_mat == null)
-            {
-                _mat = Utils.RuntimeMaterialUtil.CreatePseudo3d(c, 0.25f);
-                if (_mat != null && _renderer != null)
-                {
-                    _renderer.sharedMaterial = _mat;
-                }
-            }
-            else
-            {
-                Utils.RuntimeMaterialUtil.ApplyColor(_mat, c);
-                if (_mat.HasProperty("_EmissionColor"))
-                {
-                    _mat.SetColor("_EmissionColor", c * 0.25f);
-                }
+                _visual.Rotate(0f, 110f * dt, 35f * dt, Space.Self);
             }
         }
 
@@ -80,15 +64,6 @@ namespace Arkanoid.Gameplay
                 case PowerUpType.Magnet: return new Color(0.85f, 0.35f, 1f);
                 case PowerUpType.ExtraLife: return new Color(1f, 0.35f, 0.55f);
                 default: return Color.white;
-            }
-        }
-
-        private void OnDestroy()
-        {
-            if (_mat != null)
-            {
-                Destroy(_mat);
-                _mat = null;
             }
         }
     }

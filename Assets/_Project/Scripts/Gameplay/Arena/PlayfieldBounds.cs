@@ -12,7 +12,7 @@ namespace Arkanoid.Gameplay
         private float maxX = 5f;
 
         [SerializeField]
-        private float minY = -8.6f;
+        private float minY = -7.9f;
 
         [SerializeField]
         private float maxY = 10.5f;

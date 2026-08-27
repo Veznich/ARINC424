@@ -8,11 +8,15 @@ namespace Arkanoid.Gameplay
     /// </summary>
     public static class PlayfieldLayout
     {
-        public const float DeathY = -8.6f;
-        public const float PaddleY = -7.85f;
-        public const float HudWorldMargin = 1.35f;
-        public const float SidePad = 0.08f;
-        public const float TopPad = 0.25f;
+        public const float DeathY = -7.9f;
+        public const float PaddleY = -5.55f;
+        /// <summary>Отступ стен от края сетки блоков — ближе к краю экрана, не к бокам блоков.</summary>
+        public const float SidePad = 1.15f;
+        public const float TopPad = 0.15f;
+        /// <summary>Насколько выше верхних блоков мяч может лететь до отскока (к статус-бару).</summary>
+        public const float CeilingAboveBlocks = 2.1f;
+        /// <summary>Доля экрана сверху под статус-бар — потолок мяча = низ этой зоны.</summary>
+        public const float StatusBarScreenFraction = 0.075f;
 
         public static void ApplyPaddlePosition(PaddleController paddle)
         {
@@ -35,11 +39,13 @@ namespace Arkanoid.Gameplay
             var half = layout.CellSize * Mathf.Clamp(blockScale, 0.5f, 1f) * 0.5f;
             var minX = layout.Origin.x - half - SidePad;
             var maxX = layout.Origin.x + (layout.Width - 1) * layout.CellSize + half + SidePad;
-            var maxY = layout.Origin.y + (layout.Height - 1) * layout.CellSize + half + TopPad;
+            var blockTop = layout.Origin.y + (layout.Height - 1) * layout.CellSize + half + TopPad;
+            // Отскок у статус-бара, а не сразу над блоками
+            var maxY = blockTop + CeilingAboveBlocks;
             bounds.Set(minX, maxX, DeathY, maxY);
         }
 
-        /// <summary>Камера: почти фронт (лёгкий pitch), низ у платформы, верх с запасом под статус-бар.</summary>
+        /// <summary>Камера: низ с запасом под иконки, верх — статус-бар над потолком мяча.</summary>
         public static void ConfigureCamera(Camera cam, PlayfieldBounds bounds)
         {
             if (cam == null)
@@ -53,17 +59,17 @@ namespace Arkanoid.Gameplay
 
             var minY = bounds != null ? bounds.MinY : DeathY;
             var maxY = bounds != null ? bounds.MaxY : 8f;
-            // Верх кадра выше потолка поля + HUD, низ чуть ниже death
-            var viewBottom = minY - 0.35f;
-            var viewTop = maxY + HudWorldMargin;
+            // Место под 3D-иконки бонусов ниже платформы
+            var viewBottom = minY - 0.55f;
+            var spanToCeiling = Mathf.Max(0.1f, maxY - viewBottom);
+            var hudBand = spanToCeiling * StatusBarScreenFraction / (1f - StatusBarScreenFraction);
+            var viewTop = maxY + hudBand;
             var centerY = (viewBottom + viewTop) * 0.5f;
             var halfH = (viewTop - viewBottom) * 0.5f;
             cam.orthographicSize = Mathf.Max(8.5f, halfH);
 
-            // Минимальный pitch — объём читается bevel'ом, коллизии = экран
-            const float pitch = 6f;
+            const float pitch = 3f;
             cam.transform.rotation = Quaternion.Euler(pitch, 0f, 0f);
-            // Камера смотрит примерно в центр поля
             var distance = 12f;
             var rad = pitch * Mathf.Deg2Rad;
             cam.transform.position = new Vector3(

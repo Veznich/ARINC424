@@ -10,7 +10,7 @@ namespace Arkanoid.Configs
         public float width = 2f;
         public float height = 0.4f;
         public float moveSpeed = 20f;
-            public float maxX = 4.7f;
+            public float maxX = 5.2f;
 
         [Header("Ввод")]
         [Tooltip("Доля экрана снизу, где активен drag (1/3)")]

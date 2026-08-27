@@ -41,6 +41,7 @@ namespace Arkanoid.Gameplay
         private bool _wasLaunchPressed;
         private bool _fireball;
         private int _fireballPierce;
+        private float _dockOffsetX;
         private IDisposable _levelStartedSub;
 
         public bool IsDocked => _docked;
@@ -188,6 +189,7 @@ namespace Arkanoid.Gameplay
             _velocity = Vector3.zero;
             _slowTimer = 0f;
             _slowMultiplier = 1f;
+            _dockOffsetX = 0f;
             _currentSpeed = _config != null ? _config.baseSpeed : 10f;
             _speedTimer = 0f;
             FollowPaddle();
@@ -195,6 +197,16 @@ namespace Arkanoid.Gameplay
             {
                 _eventBus?.Publish(new BallDockedEvent());
             }
+        }
+
+        /// <summary>Магнит: прилипание в точке удара (смещение по X сохраняется).</summary>
+        public void CatchOnPaddle(float offsetX)
+        {
+            _docked = true;
+            _velocity = Vector3.zero;
+            _dockOffsetX = offsetX;
+            FollowPaddle();
+            _eventBus?.Publish(new BallDockedEvent());
         }
 
         public void Launch(Vector3 direction)
@@ -249,7 +261,9 @@ namespace Arkanoid.Gameplay
             }
 
             var p = _paddle.Position;
-            transform.position = new Vector3(p.x, p.y + dockOffsetY, 0f);
+            var halfW = _paddle.HalfWidth;
+            var ox = Mathf.Clamp(_dockOffsetX, -halfW, halfW);
+            transform.position = new Vector3(p.x + ox, p.y + dockOffsetY, 0f);
         }
 
         private void TickSpeedRamp(float dt)
@@ -429,6 +443,16 @@ namespace Arkanoid.Gameplay
 
             if (!withinX || !crossing)
             {
+                return;
+            }
+
+            // Магнит: мяч прилипает к платформе, запуск — tap / Space
+            if (_powerUps != null && _powerUps.IsMagnetActive)
+            {
+                var offsetX = Mathf.Clamp(pos.x - paddlePos.x, -halfW, halfW);
+                CatchOnPaddle(offsetX);
+                _eventBus?.Publish(new BallHitPaddleEvent(
+                    BallBounceCalculator.ComputeHitFactor(pos.x, paddlePos.x, halfW)));
                 return;
             }
 
