@@ -1,0 +1,291 @@
+# ==========================================
+# БАЗОВЫЙ .GITIGNORE ДЛЯ UNITY
+# ==========================================
+
+# Всё, что генерирует Unity автоматически
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/Assets/AssetStoreTools*
+/Assets/AssetStoreTools*
+
+# Папки для Visual Studio / Rider / VS Code
+/[Aa]ssets/AssetStoreTools*
+/[Aa]ssets/AssetStoreTools*
+
+# ==========================================
+# ПАПКИ ДЛЯ СБОРОК И КЭША
+# ==========================================
+
+# Unity builds
+/[Bb]uild/
+/[Bb]uilds/
+/Assets/AssetStoreTools*
+/Assets/AssetStoreTools*
+
+# Пользовательские настройки Unity
+/UserSettings/
+*.userprefs
+*.user
+*.unityproj
+*.csproj
+*.sln
+*.slnf
+
+# ==========================================
+# ВСЁ, ЧТО КАСАЕТСЯ VS CODE / RIDER
+# ==========================================
+
+# Visual Studio
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Rider
+*.DotSettings.user
+*.csproj.DotSettings
+*.sln.DotSettings
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# ==========================================
+# ПАПКА БИБЛИОТЕКИ (Library) — САМОЕ ВАЖНОЕ
+# ==========================================
+
+# Unity автоматически пересоздаёт Library при запуске
+/Library/
+/Library/AssetDB*
+/Library/CurrentLayout-default.dwlt
+/Library/InspectorExpandedItems.asset
+/Library/LastSceneManagerSetup.txt
+/Library/ScriptAssemblies/
+/Library/StateCache/
+/Library/EditorInstance.json
+/Library/EditorOnlyVirtualTextureState.json
+/Library/EditorOnlyScriptingSettings.json
+/Library/EditorUserBuildSettings.asset
+/Library/ProjectSettings.asset
+/Library/ShaderCache.db
+/Library/SourceAssetDB
+/Library/SourceAssetDB-lock
+/Library/UnityOverlayManager.asset
+/Library/ArtifactDB
+/Library/ArtifactDB-lock
+/Library/PackageManagerCache/
+/Library/PackageManager/
+/Library/PersistentManager/
+/Library/TerrainCache/
+
+# ==========================================
+# ПАПКА TEMP — МОЖНО УДАЛЯТЬ БЕЗ СТРАХА
+# ==========================================
+
+/Temp/
+/Temp/UnityTempFile-*
+
+# ==========================================
+# ОБЪЕКТНЫЕ ФАЙЛЫ (НЕ НУЖНЫ В РЕПОЗИТОРИИ)
+# ==========================================
+
+*.cs.meta
+*.unity.meta
+*.prefab.meta
+*.asset.meta
+*.mat.meta
+*.anim.meta
+*.controller.meta
+*.shader.meta
+*.cginc.meta
+*.hlsl.meta
+*.compute.meta
+*.raytrace.meta
+*.asmdef.meta
+*.asmref.meta
+*.rsp.meta
+*.hlsl
+*.cginc
+*.compute
+*.raytrace
+
+# ==========================================
+# ЛОГИ И КЭШИ (НИКОГДА НЕ ПУШИТЬ)
+# ==========================================
+
+*.log
+*.cache
+*.pidb
+*.pdb
+*.mdb
+*.tmp
+*.temp
+*.swp
+*.swo
+*.~*
+.*.swp
+.*.swo
+
+# ==========================================
+# АРХИВЫ, БЭКАПЫ, АССЕТЫ
+# ==========================================
+
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.tgz
+*.bz2
+*.xz
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.apk
+*.aab
+*.ipa
+*.dSYM
+*.xcarchive
+*.app
+*.exe
+*.msi
+*.dll
+*.so
+*.dylib
+*.lib
+*.a
+*.o
+*.obj
+*.pyc
+*.pyo
+*.class
+*.jar
+
+# ==========================================
+# СИСТЕМНЫЕ ФАЙЛЫ (MAC / WINDOWS / LINUX)
+# ==========================================
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*.swp
+*.swo
+*~
+
+# ==========================================
+# ADDRESSABLES (ЕСЛИ ИСПОЛЬЗУЕТЕ)
+# ==========================================
+
+/Assets/AddressableAssetsData/
+/Assets/AddressableAssetsData/*.asset
+/Assets/AddressableAssetsData/*.meta
+/Assets/StreamingAssets/aa/
+/Assets/StreamingAssets/aa/*
+
+# ==========================================
+# ПАПКИ ДЛЯ ANALYTICS / REMOTE CONFIG
+# ==========================================
+
+/Assets/Firebase/
+/Assets/GooglePlayGames/
+/Assets/GoogleMobileAds/
+/Assets/Editor/
+
+# ==========================================
+# ПАПКА ПОЛЬЗОВАТЕЛЬСКИХ НАСТРОЕК
+# ==========================================
+
+/UserSettings/
+/UserSettings/EditorUserSettings.asset
+/UserSettings/Layouts/
+/UserSettings/Search.index
+/UserSettings/Search.settings
+
+# ==========================================
+# ПРОЧЕЕ
+# ==========================================
+
+# Rider / Resharper
+*.DotSettings.user
+
+# Code coverage
+/coverage/
+/TestResults/
+
+# Unity Accelerator
+/UnityPackageManager/
+/UnityPackageManager/manifest.json
+/UnityPackageManager/packages-lock.json
+
+# ==========================================
+# ДОПОЛНИТЕЛЬНО: ПАПКИ, КОТОРЫЕ НЕ НУЖНО ПУШИТЬ
+# ==========================================
+
+/Assets/Plugins/Android/.gradle/
+/Assets/Plugins/Android/.idea/
+/Assets/Plugins/Android/local.properties
+
+# Android SDK/NDK
+/.gradle/
+/.idea/
+/.vs/
+/.vscode/
+/obj/
+/Properties/
+/bin/
+/AndroidManifest.xml
+/gradle/
+/gradlew*
+/local.properties
+
+# ==========================================
+# ЕСЛИ ИСПОЛЬЗУЕТЕ GIT LFS (ДЛЯ БОЛЬШИХ ФАЙЛОВ)
+# ==========================================
+
+# Раскомментируйте, если используете Git LFS
+# *.psd filter=lfs diff=lfs merge=lfs -text
+# *.tga filter=lfs diff=lfs merge=lfs -text
+# *.png filter=lfs diff=lfs merge=lfs -text
+# *.jpg filter=lfs diff=lfs merge=lfs -text
+# *.jpeg filter=lfs diff=lfs merge=lfs -text
+# *.wav filter=lfs diff=lfs merge=lfs -text
+# *.mp3 filter=lfs diff=lfs merge=lfs -text
+# *.aiff filter=lfs diff=lfs merge=lfs -text
+# *.fbx filter=lfs diff=lfs merge=lfs -text
+# *.obj filter=lfs diff=lfs merge=lfs -text
+# *.blend filter=lfs diff=lfs merge=lfs -text
+# *.3ds filter=lfs diff=lfs merge=lfs -text
+# *.max filter=lfs diff=lfs merge=lfs -text
+# *.ma filter=lfs diff=lfs merge=lfs -text
+# *.mb filter=lfs diff=lfs merge=lfs -text
+# *.unitypackage filter=lfs diff=lfs merge=lfs -text
+
+# ==========================================
+# КОНЕЦ .GITIGNORE
+# ==========================================
