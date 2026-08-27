@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Arkanoid.Core;
 using Arkanoid.Difficulty;
 using Arkanoid.Gameplay;
+using Arkanoid.Replay;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,7 @@ namespace Arkanoid.UI
         private IEventBus _eventBus;
         private IGameStateMachine _stateMachine;
         private DifficultyDirector _difficulty;
+        private ReplayService _replay;
         private Camera _uiCamera;
 
         private Text _livesText;
@@ -55,11 +57,13 @@ namespace Arkanoid.UI
             int maxLives,
             int level = 1,
             DifficultyDirector difficulty = null,
-            Camera uiCamera = null)
+            Camera uiCamera = null,
+            ReplayService replay = null)
         {
             _eventBus = eventBus;
             _stateMachine = stateMachine;
             _difficulty = difficulty;
+            _replay = replay;
             _uiCamera = uiCamera != null ? uiCamera : Camera.main;
             _lives = lives;
             _maxLives = maxLives;
@@ -382,23 +386,23 @@ namespace Arkanoid.UI
 
             var statsGo = CreateRect("Stats", card.transform);
             var statsRt = statsGo.GetComponent<RectTransform>();
-            statsRt.anchorMin = new Vector2(0.06f, 0.72f);
-            statsRt.anchorMax = new Vector2(0.94f, 0.9f);
+            statsRt.anchorMin = new Vector2(0.06f, 0.69f);
+            statsRt.anchorMax = new Vector2(0.94f, 0.89f);
             statsRt.offsetMin = Vector2.zero;
             statsRt.offsetMax = Vector2.zero;
             _infoStatsText = statsGo.AddComponent<Text>();
             _infoStatsText.font = ResolveFont();
-            _infoStatsText.fontSize = 46; // 54 −15%
+            _infoStatsText.fontSize = 40;
             _infoStatsText.alignment = TextAnchor.UpperLeft;
             _infoStatsText.color = new Color(0.85f, 0.92f, 1f);
             _infoStatsText.horizontalOverflow = HorizontalWrapMode.Wrap;
-            _infoStatsText.verticalOverflow = VerticalWrapMode.Overflow;
-            _infoStatsText.lineSpacing = 1.15f;
+            _infoStatsText.verticalOverflow = VerticalWrapMode.Truncate;
+            _infoStatsText.lineSpacing = 1.1f;
 
             var listTitleGo = CreateRect("BonusesTitle", card.transform);
             var listTitleRt = listTitleGo.GetComponent<RectTransform>();
-            listTitleRt.anchorMin = new Vector2(0.06f, 0.66f);
-            listTitleRt.anchorMax = new Vector2(0.94f, 0.72f);
+            listTitleRt.anchorMin = new Vector2(0.06f, 0.63f);
+            listTitleRt.anchorMax = new Vector2(0.94f, 0.68f);
             listTitleRt.offsetMin = Vector2.zero;
             listTitleRt.offsetMax = Vector2.zero;
             var listTitle = listTitleGo.AddComponent<Text>();
@@ -411,8 +415,8 @@ namespace Arkanoid.UI
 
             var listRoot = CreateRect("BonusList", card.transform);
             var listRt = listRoot.GetComponent<RectTransform>();
-            listRt.anchorMin = new Vector2(0.05f, 0.14f);
-            listRt.anchorMax = new Vector2(0.95f, 0.66f);
+            listRt.anchorMin = new Vector2(0.05f, 0.23f);
+            listRt.anchorMax = new Vector2(0.95f, 0.62f);
             listRt.offsetMin = Vector2.zero;
             listRt.offsetMax = Vector2.zero;
 
@@ -440,10 +444,37 @@ namespace Arkanoid.UI
                 _infoIconYaw.Add(i * 37f);
             }
 
+            CreateInfoActionButton(
+                card.transform,
+                "ReplayButton",
+                new Vector2(0.06f, 0.14f),
+                new Vector2(0.48f, 0.21f),
+                new Color(0.2f, 0.55f, 0.35f, 1f),
+                "REPLAY",
+                OnReplayClicked);
+
+            CreateInfoActionButton(
+                card.transform,
+                "ExportButton",
+                new Vector2(0.52f, 0.14f),
+                new Vector2(0.94f, 0.21f),
+                new Color(0.45f, 0.35f, 0.15f, 1f),
+                "EXPORT",
+                OnExportClicked);
+
+            CreateInfoActionButton(
+                card.transform,
+                "ResetButton",
+                new Vector2(0.06f, 0.07f),
+                new Vector2(0.94f, 0.13f),
+                new Color(0.65f, 0.22f, 0.28f, 1f),
+                "СБРОС — СНАЧАЛА",
+                OnResetClicked);
+
             var closeGo = CreateRect("CloseButton", card.transform);
             var closeRt = closeGo.GetComponent<RectTransform>();
-            closeRt.anchorMin = new Vector2(0.25f, 0.03f);
-            closeRt.anchorMax = new Vector2(0.75f, 0.12f);
+            closeRt.anchorMin = new Vector2(0.25f, 0.01f);
+            closeRt.anchorMax = new Vector2(0.75f, 0.06f);
             closeRt.offsetMin = Vector2.zero;
             closeRt.offsetMax = Vector2.zero;
             var closeImg = closeGo.AddComponent<Image>();
@@ -467,6 +498,117 @@ namespace Arkanoid.UI
             closeLabel.text = "ЗАКРЫТЬ";
 
             _infoPanel.SetActive(false);
+        }
+
+        private static void CreateInfoActionButton(
+            Transform parent,
+            string name,
+            Vector2 anchorMin,
+            Vector2 anchorMax,
+            Color color,
+            string label,
+            UnityEngine.Events.UnityAction onClick)
+        {
+            var go = CreateRect(name, parent);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = anchorMin;
+            rt.anchorMax = anchorMax;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+            var img = go.AddComponent<Image>();
+            img.color = color;
+            var btn = go.AddComponent<Button>();
+            btn.targetGraphic = img;
+            btn.onClick.AddListener(onClick);
+
+            var labelGo = CreateRect("Label", go.transform);
+            var labelRt = labelGo.GetComponent<RectTransform>();
+            labelRt.anchorMin = Vector2.zero;
+            labelRt.anchorMax = Vector2.one;
+            labelRt.offsetMin = Vector2.zero;
+            labelRt.offsetMax = Vector2.zero;
+            var text = labelGo.AddComponent<Text>();
+            text.font = ResolveFont();
+            text.fontSize = 36;
+            text.fontStyle = FontStyle.Bold;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = Color.white;
+            text.text = label;
+        }
+
+        private void OnReplayClicked()
+        {
+            if (_replay == null)
+            {
+                ShowToast("Нет ReplayService", new Color(1f, 0.5f, 0.4f));
+                return;
+            }
+
+            CloseInfoAndResume();
+            if (!_replay.TryPlayLatest())
+            {
+                ShowToast("Нет сохранённых replay", new Color(1f, 0.7f, 0.3f));
+            }
+            else
+            {
+                ShowToast("REPLAY…", new Color(0.5f, 1f, 0.7f));
+            }
+        }
+
+        private void OnExportClicked()
+        {
+            if (_replay == null)
+            {
+                ShowToast("Нет ReplayService", new Color(1f, 0.5f, 0.4f));
+                return;
+            }
+
+            var path = _replay.ExportLatest();
+            if (string.IsNullOrEmpty(path))
+            {
+                ShowToast("Нечего экспортировать", new Color(1f, 0.7f, 0.3f));
+            }
+            else
+            {
+                ShowToast("EXPORT OK", new Color(1f, 0.9f, 0.4f));
+                Debug.Log("[Info] Replay export: " + path);
+            }
+        }
+
+        private void OnResetClicked()
+        {
+            if (_eventBus == null)
+            {
+                return;
+            }
+
+            _infoOpen = false;
+            if (_infoPanel != null)
+            {
+                _infoPanel.SetActive(false);
+            }
+
+            if (_infoIconsRoot != null)
+            {
+                _infoIconsRoot.gameObject.SetActive(false);
+            }
+
+            // С уровня 1: жизни и difficulty session сбросятся подписчиками RequestGameplay
+            _eventBus.Publish(new RequestGameplayEvent(1));
+            ShowToast("СБРОС", new Color(1f, 0.55f, 0.5f));
+        }
+
+        private void ShowToast(string msg, Color color)
+        {
+            if (_toastText == null)
+            {
+                return;
+            }
+
+            _toastText.text = msg;
+            _toastText.color = color;
+            _toastText.gameObject.SetActive(true);
+            _toastUntil = Time.unscaledTime + 1.8f;
         }
 
         private Transform CreateSpinningIcon(PowerUpType type, int index)
@@ -605,7 +747,8 @@ namespace Arkanoid.UI
             _infoStatsText.text =
                 $"Уровень: {_level}\n" +
                 $"Жизни: {_lives} / {_maxLives}\n" +
-                $"Пройдено без потери жизни: {firstTry}";
+                $"Без потери жизни: {firstTry}\n" +
+                $"Блоки: G→Y→R→Син→Чёрн→Медь→Жел→Брил";
         }
 
         private void RefreshLives()

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Arkanoid.Configs
 {
-    /// <summary>Генерация уровней: сетка, архетипы, веса блоков.</summary>
+    /// <summary>Генерация уровней: сетка, архетипы, прогрессия блоков.</summary>
     [CreateAssetMenu(fileName = "LevelConfig", menuName = "Arkanoid/Configs/LevelConfig")]
     public sealed class LevelConfig : ScriptableObject
     {
@@ -10,17 +10,26 @@ namespace Arkanoid.Configs
         public int gridWidth = 10;
         public int gridHeight = 8;
         public float cellSize = 1f;
-        public Vector3 gridOrigin = new Vector3(-4.5f, 1.5f, 0f);
+        public Vector3 gridOrigin = new Vector3(-4.5f, 2f, 0f);
 
-        [Header("Веса: Green 1HP / Yellow 2HP / Red 3HP")]
-        public float weightGreen = 50f;
-        public float weightYellow = 30f;
-        public float weightRed = 20f;
+        [Header("Прогрессия блоков")]
+        [Tooltip("Сколько блоков на 1 уровне (все green)")]
+        public int startBlockCount = 5;
+        [Tooltip("Сколько блоков добавлять за каждый следующий уровень")]
+        public int blocksPerLevel = 3;
+        public int maxBlockCount = 72;
+        [Tooltip("Каждые N уровней открывается новый цвет/HP")]
+        public int tierUnlockEveryLevels = 10;
+        [Tooltip("Макс. HP/цвет (1..8)")]
+        public int maxBlockTier = 8;
 
         [Header("Размер блока (визуал)")]
         public float blockScale = 0.9f;
 
-        // Совместимость со старыми ассетами / будущие спец-блоки (Этап 4+)
+        // Legacy / совместимость
+        [HideInInspector] public float weightGreen = 50f;
+        [HideInInspector] public float weightYellow = 30f;
+        [HideInInspector] public float weightRed = 20f;
         [HideInInspector] public float weightNormal = 50f;
         [HideInInspector] public float weightHard = 25f;
         [HideInInspector] public float weightExplosive;

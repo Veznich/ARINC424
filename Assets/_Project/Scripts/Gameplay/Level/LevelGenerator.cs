@@ -1,12 +1,14 @@
 using System;
+using System.Collections.Generic;
 using Arkanoid.Configs;
 using UnityEngine;
 
 namespace Arkanoid.Gameplay
 {
     /// <summary>
-    /// Детерминированная генерация раскладки по seed + архетипу.
-    /// Не знает про Unity-сцену / пул — только данные.
+    /// Генерация: архетип → кандидаты → ровно N блоков.
+    /// L1 ≈ 5 green; каждый уровень больше блоков;
+    /// каждые 10 уровней открывается новый цвет/HP.
     /// </summary>
     public sealed class LevelGenerator
     {
@@ -17,6 +19,7 @@ namespace Arkanoid.Gameplay
                 throw new ArgumentNullException(nameof(config));
             }
 
+            var level = Mathf.Max(1, levelNumber);
             var w = Mathf.Max(3, config.gridWidth);
             var h = Mathf.Max(3, config.gridHeight);
             var rng = new System.Random(seed);
@@ -35,27 +38,56 @@ namespace Arkanoid.Gameplay
                     break;
             }
 
-            var cells = new BlockSpawnData[w * h];
-            for (var y = 0; y < h; y++)
+            var candidates = new List<int>(w * h);
+            for (var i = 0; i < mask.Length; i++)
             {
-                for (var x = 0; x < w; x++)
+                if (mask[i])
                 {
-                    var idx = y * w + x;
-                    if (!mask[idx])
-                    {
-                        cells[idx] = new BlockSpawnData(x, y, BlockType.Empty, 0);
-                        continue;
-                    }
-
-                    var type = RollType(rng, config);
-                    var hits = HitsFor(type, rng, config);
-                    cells[idx] = new BlockSpawnData(x, y, type, hits);
+                    candidates.Add(i);
                 }
+            }
+
+            // Если маска слишком редкая — добиваем верхней зоной
+            if (candidates.Count < 5)
+            {
+                FillTopBand(mask, w, h, rows: Mathf.Min(4, h));
+                candidates.Clear();
+                for (var i = 0; i < mask.Length; i++)
+                {
+                    if (mask[i])
+                    {
+                        candidates.Add(i);
+                    }
+                }
+            }
+
+            Shuffle(candidates, rng);
+
+            var target = TargetBlockCount(level, config, candidates.Count);
+            var maxTier = MaxTierForLevel(level, config);
+            var bandProgress = TierBandProgress(level, config); // 0..1 внутри десятки
+
+            var cells = new BlockSpawnData[w * h];
+            for (var i = 0; i < cells.Length; i++)
+            {
+                var x = i % w;
+                var y = i / w;
+                cells[i] = new BlockSpawnData(x, y, BlockType.Empty, 0);
+            }
+
+            for (var n = 0; n < target; n++)
+            {
+                var idx = candidates[n];
+                var x = idx % w;
+                var y = idx / w;
+                var hits = RollHits(rng, maxTier, bandProgress);
+                var type = BlockTypeFromHits(hits);
+                cells[idx] = new BlockSpawnData(x, y, type, hits);
             }
 
             return new LevelLayout
             {
-                LevelNumber = levelNumber,
+                LevelNumber = level,
                 Seed = seed,
                 Archetype = archetype,
                 Width = w,
@@ -69,6 +101,110 @@ namespace Arkanoid.Gameplay
         public static LevelArchetype PickArchetype(int seed)
         {
             return (LevelArchetype)(Mathf.Abs(seed) % 3);
+        }
+
+        public static int MaxTierForLevel(int level, LevelConfig config)
+        {
+            var every = config != null ? Mathf.Max(1, config.tierUnlockEveryLevels) : 10;
+            var cap = config != null ? Mathf.Clamp(config.maxBlockTier, 1, 8) : 8;
+            // L1–9 → 1, L10–19 → 2, …
+            var tier = 1 + (Mathf.Max(1, level) - 1) / every;
+            return Mathf.Clamp(tier, 1, cap);
+        }
+
+        public static int TargetBlockCount(int level, LevelConfig config, int candidateCap)
+        {
+            var start = config != null ? Mathf.Max(1, config.startBlockCount) : 5;
+            var per = config != null ? Mathf.Max(0, config.blocksPerLevel) : 3;
+            var max = config != null ? Mathf.Max(start, config.maxBlockCount) : 72;
+            var count = start + (Mathf.Max(1, level) - 1) * per;
+            count = Mathf.Clamp(count, 1, max);
+            if (candidateCap > 0)
+            {
+                count = Mathf.Min(count, candidateCap);
+            }
+
+            return count;
+        }
+
+        /// <summary>0 в начале десятки, ~1 перед следующим unlock.</summary>
+        private static float TierBandProgress(int level, LevelConfig config)
+        {
+            var every = config != null ? Mathf.Max(1, config.tierUnlockEveryLevels) : 10;
+            return (Mathf.Max(1, level) - 1) % every / (float)every;
+        }
+
+        private static int RollHits(System.Random rng, int maxTier, float bandProgress)
+        {
+            if (maxTier <= 1)
+            {
+                return 1;
+            }
+
+            // Нижние лвлы чаще; ближе к unlock следующего — чаще топ-лвл
+            var weights = new float[maxTier];
+            var sum = 0f;
+            for (var h = 1; h <= maxTier; h++)
+            {
+                var w = maxTier - h + 1f; // 1 HP весомее
+                if (h == maxTier)
+                {
+                    w += 1.5f + bandProgress * 4f;
+                }
+
+                weights[h - 1] = w;
+                sum += w;
+            }
+
+            var roll = (float)rng.NextDouble() * sum;
+            for (var h = 1; h <= maxTier; h++)
+            {
+                roll -= weights[h - 1];
+                if (roll <= 0f)
+                {
+                    return h;
+                }
+            }
+
+            return maxTier;
+        }
+
+        public static BlockType BlockTypeFromHits(int hits)
+        {
+            if (hits <= 0)
+            {
+                return BlockType.Empty;
+            }
+
+            if (hits >= 8)
+            {
+                return BlockType.Diamond;
+            }
+
+            return (BlockType)hits;
+        }
+
+        private static void Shuffle(List<int> list, System.Random rng)
+        {
+            for (var i = list.Count - 1; i > 0; i--)
+            {
+                var j = rng.Next(i + 1);
+                var tmp = list[i];
+                list[i] = list[j];
+                list[j] = tmp;
+            }
+        }
+
+        private static void FillTopBand(bool[] mask, int w, int h, int rows)
+        {
+            var y0 = Mathf.Max(0, h - rows);
+            for (var y = y0; y < h; y++)
+            {
+                for (var x = 0; x < w; x++)
+                {
+                    mask[y * w + x] = true;
+                }
+            }
         }
 
         private static void FillTunnel(bool[] mask, int w, int h)
@@ -98,7 +234,6 @@ namespace Arkanoid.Gameplay
                 }
             }
 
-            // Башни по краям
             for (var y = Mathf.Max(0, wallBottom - 2); y <= wallTop; y++)
             {
                 mask[y * w + 0] = true;
@@ -129,47 +264,6 @@ namespace Arkanoid.Gameplay
                     var manhattan = Mathf.Abs(x - cx) + Mathf.Abs(y - cy);
                     mask[y * w + x] = manhattan <= maxR;
                 }
-            }
-        }
-
-        private static BlockType RollType(System.Random rng, LevelConfig config)
-        {
-            var green = config.weightGreen > 0f ? config.weightGreen : config.weightNormal;
-            var yellow = config.weightYellow;
-            var red = config.weightRed > 0f ? config.weightRed : config.weightHard;
-            var sum = green + yellow + red;
-            if (sum <= 0f)
-            {
-                return BlockType.Green;
-            }
-
-            var roll = (float)rng.NextDouble() * sum;
-            if (roll < green)
-            {
-                return BlockType.Green;
-            }
-
-            roll -= green;
-            if (roll < yellow)
-            {
-                return BlockType.Yellow;
-            }
-
-            return BlockType.Red;
-        }
-
-        private static int HitsFor(BlockType type, System.Random rng, LevelConfig config)
-        {
-            switch (type)
-            {
-                case BlockType.Yellow:
-                    return 2;
-                case BlockType.Red:
-                    return 3;
-                case BlockType.Empty:
-                    return 0;
-                default:
-                    return 1; // Green
             }
         }
     }

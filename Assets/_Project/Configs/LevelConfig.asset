@@ -16,11 +16,22 @@ MonoBehaviour:
   gridHeight: 8
   cellSize: 1
   gridOrigin: {x: -4.5, y: 2, z: 0}
+  startBlockCount: 5
+  blocksPerLevel: 3
+  maxBlockCount: 72
+  tierUnlockEveryLevels: 10
+  maxBlockTier: 8
+  blockScale: 0.9
+  weightGreen: 50
+  weightYellow: 30
+  weightRed: 20
   weightNormal: 50
   weightHard: 25
-  weightExplosive: 10
-  weightFrozen: 10
-  weightGenerator: 5
+  weightExplosive: 0
+  weightFrozen: 0
+  weightGenerator: 0
   hardMinHits: 2
   hardMaxHits: 3
   generatorIntervalSeconds: 5
+  frozenSlowDuration: 1
+  frozenSpeedMultiplier: 0.45

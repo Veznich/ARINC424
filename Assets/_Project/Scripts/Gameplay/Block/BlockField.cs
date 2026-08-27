@@ -131,10 +131,10 @@ namespace Arkanoid.Gameplay
                 var hits = cell.Hits;
                 if (_difficulty != null && hits > 0)
                 {
-                    hits += _difficulty.ExtraBlockHits;
+                    hits = Mathf.Min(8, hits + _difficulty.ExtraBlockHits);
                 }
 
-                SpawnAt(cell.X, cell.Y, cell.Type, hits, scale);
+                SpawnAt(cell.X, cell.Y, LevelGenerator.BlockTypeFromHits(hits), hits, scale);
             }
 
             if (_active.Count == 0)

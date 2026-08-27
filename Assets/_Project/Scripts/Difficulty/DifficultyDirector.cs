@@ -41,6 +41,9 @@ namespace Arkanoid.Difficulty
         private float _dropMod;
         private float _speedMul = 1f;
         private int _extraHp;
+        private float _levelSpeedMul = 1f;
+        private float _levelDropMod;
+        private int _levelExtraHp;
         private DifficultyBias _bias = DifficultyBias.Neutral;
         private bool _dirty;
 
@@ -51,17 +54,17 @@ namespace Arkanoid.Difficulty
                 var baseChance = _powerUpConfig != null ? _powerUpConfig.dropChance : 0.2f;
                 var min = _config != null ? _config.minDropChance : 0.1f;
                 var max = _config != null ? _config.maxDropChance : 0.35f;
-                return Mathf.Clamp(baseChance + _dropMod, min, max);
+                return Mathf.Clamp(baseChance + _dropMod + _levelDropMod, min, max);
             }
         }
 
         public float BallSpeedMultiplier =>
             Mathf.Clamp(
-                _speedMul,
+                _speedMul * _levelSpeedMul,
                 _config != null ? _config.minBallSpeedMul : 0.75f,
-                _config != null ? _config.maxBallSpeedMul : 1.35f);
+                _config != null ? _config.maxBallSpeedMul : 1.6f);
 
-        public int ExtraBlockHits => Mathf.Max(0, _extraHp);
+        public int ExtraBlockHits => Mathf.Max(0, _extraHp + _levelExtraHp);
         public DifficultyBias Bias => _bias;
         /// <summary>Уровни сессии, пройденные без потери жизни.</summary>
         public int FirstTryClears { get; private set; }
@@ -87,7 +90,7 @@ namespace Arkanoid.Difficulty
             }
 
             _livesSub = _eventBus.Subscribe<LivesChangedEvent>(OnLivesChanged);
-            _startedSub = _eventBus.Subscribe<LevelStartedEvent>(_ => OnLevelStarted());
+            _startedSub = _eventBus.Subscribe<LevelStartedEvent>(OnLevelStarted);
             _completedSub = _eventBus.Subscribe<LevelCompletedEvent>(_ => OnLevelCompleted());
             _gameplaySub = _eventBus.Subscribe<RequestGameplayEvent>(_ => ResetSession());
             _restartSub = _eventBus.Subscribe<RequestRestartLevelEvent>(_ =>
@@ -146,13 +149,34 @@ namespace Arkanoid.Difficulty
             _lastLives = e.Current;
         }
 
-        private void OnLevelStarted()
+        private void OnLevelStarted(LevelStartedEvent e)
         {
             _levelOpen = true;
             _deathsThisLevel = 0;
+            ApplyLevelBaseline(e.LevelNumber);
             SyncLastLives();
             SnapApplied();
             PublishChanged(forceToast: false);
+            Debug.Log(
+                $"[Difficulty] Level {e.LevelNumber} · speed×{BallSpeedMultiplier:F2} " +
+                $"drop={EffectiveDropChance:F2} +hp={ExtraBlockHits}");
+        }
+
+        private void ApplyLevelBaseline(int levelNumber)
+        {
+            var tier = Mathf.Max(0, levelNumber - 1);
+            if (_config == null)
+            {
+                _levelSpeedMul = 1f + tier * 0.03f;
+                _levelDropMod = -tier * 0.008f;
+                _levelExtraHp = 0; // HP/цвета блоков — в LevelGenerator
+                return;
+            }
+
+            // Лёгкий рост скорости/дропа; плотность и цвета блоков — LevelGenerator
+            _levelSpeedMul = 1f + tier * (_config.speedPerLevel * 0.65f);
+            _levelDropMod = -tier * (_config.dropChancePerLevel * 0.65f);
+            _levelExtraHp = 0;
         }
 
         private void OnLevelCompleted()
@@ -288,6 +312,9 @@ namespace Arkanoid.Difficulty
             _dropMod = 0f;
             _speedMul = 1f;
             _extraHp = 0;
+            _levelSpeedMul = 1f;
+            _levelDropMod = 0f;
+            _levelExtraHp = 0;
             _bias = DifficultyBias.Neutral;
             SyncLastLives();
         }

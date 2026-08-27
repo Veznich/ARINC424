@@ -22,9 +22,18 @@ namespace Arkanoid.Configs
         public float dropChancePenalty = 0.05f;
         public float minDropChance = 0.1f;
 
+        [Header("Рост по уровням")]
+        [Tooltip("+скорость мяча за каждый уровень после 1")]
+        public float speedPerLevel = 0.045f;
+        [Tooltip("−шанс дропа за каждый уровень после 1")]
+        public float dropChancePerLevel = 0.012f;
+        [Tooltip("Каждые N уровней +1 HP к блокам")]
+        public int extraHpEveryLevels = 3;
+        public int maxLevelExtraHp = 4;
+
         [Header("Клампы скорости")]
         public float minBallSpeedMul = 0.75f;
-        public float maxBallSpeedMul = 1.35f;
+        public float maxBallSpeedMul = 1.6f;
 
         [Header("Плавность")]
         public float lerpSpeed = 2f;

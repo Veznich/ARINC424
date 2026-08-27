@@ -22,7 +22,11 @@ MonoBehaviour:
   ballSpeedBonus: 0.1
   dropChancePenalty: 0.05
   minDropChance: 0.1
+  speedPerLevel: 0.045
+  dropChancePerLevel: 0.012
+  extraHpEveryLevels: 3
+  maxLevelExtraHp: 4
   minBallSpeedMul: 0.75
-  maxBallSpeedMul: 1.35
+  maxBallSpeedMul: 1.6
   lerpSpeed: 2
   showNotifications: 1

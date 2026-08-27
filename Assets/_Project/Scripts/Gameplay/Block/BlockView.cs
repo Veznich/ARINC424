@@ -3,8 +3,8 @@ using UnityEngine;
 namespace Arkanoid.Gameplay
 {
     /// <summary>
-    /// Цвет = оставшиеся HP: 3 красный → 2 жёлтый → 1 зелёный → уничтожен.
-    /// Тип при спавне задаёт стартовый лвл.
+    /// Цвет = оставшиеся HP. Лестница:
+    /// зелёный→жёлтый→красный→синий→чёрный→медный→железный→бриллиант.
     /// </summary>
     public sealed class BlockView : MonoBehaviour
     {
@@ -114,37 +114,28 @@ namespace Arkanoid.Gameplay
 
         private static BlockType TypeFromHits(int hits)
         {
-            if (hits >= 3)
-            {
-                return BlockType.Red;
-            }
-
-            if (hits == 2)
-            {
-                return BlockType.Yellow;
-            }
-
-            return BlockType.Green;
+            return LevelGenerator.BlockTypeFromHits(hits);
         }
 
         private static Color ColorForHits(int hits)
         {
-            if (hits >= 3)
+            switch (hits)
             {
-                return new Color(0.95f, 0.22f, 0.18f); // Red
-            }
+                case 1: return new Color(0.25f, 0.85f, 0.4f);   // Зелёный
+                case 2: return new Color(1f, 0.85f, 0.15f);     // Жёлтый
+                case 3: return new Color(0.95f, 0.22f, 0.18f);  // Красный
+                case 4: return new Color(0.2f, 0.45f, 1f);      // Синий
+                case 5: return new Color(0.12f, 0.12f, 0.14f);  // Чёрный
+                case 6: return new Color(0.85f, 0.48f, 0.22f);  // Медный
+                case 7: return new Color(0.62f, 0.66f, 0.72f);  // Железный
+                default:
+                    if (hits >= 8)
+                    {
+                        return new Color(0.65f, 0.95f, 1f);     // Бриллиантовый
+                    }
 
-            if (hits == 2)
-            {
-                return new Color(1f, 0.85f, 0.15f); // Yellow
+                    return Color.gray;
             }
-
-            if (hits == 1)
-            {
-                return new Color(0.25f, 0.85f, 0.4f); // Green
-            }
-
-            return Color.gray;
         }
 
         private void OnDestroy()

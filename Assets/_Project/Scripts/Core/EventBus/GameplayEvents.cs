@@ -88,6 +88,39 @@ namespace Arkanoid.Core
         }
     }
 
+    /// <summary>Replay сохранён на диск.</summary>
+    public readonly struct ReplaySavedEvent
+    {
+        public readonly string Id;
+        public readonly int LevelNumber;
+        public readonly int FrameCount;
+
+        public ReplaySavedEvent(string id, int levelNumber, int frameCount)
+        {
+            Id = id;
+            LevelNumber = levelNumber;
+            FrameCount = frameCount;
+        }
+    }
+
+    /// <summary>Начат playback replay.</summary>
+    public readonly struct ReplayPlaybackStartedEvent
+    {
+        public readonly string Id;
+        public readonly int LevelNumber;
+
+        public ReplayPlaybackStartedEvent(string id, int levelNumber)
+        {
+            Id = id;
+            LevelNumber = levelNumber;
+        }
+    }
+
+    /// <summary>Playback replay завершён.</summary>
+    public readonly struct ReplayPlaybackEndedEvent
+    {
+    }
+
     /// <summary>Удар по блоку (до уничтожения).</summary>
     public readonly struct BlockHitEvent
     {

@@ -2,6 +2,7 @@ using Arkanoid.Configs;
 using Arkanoid.Core;
 using Arkanoid.Difficulty;
 using Arkanoid.Input;
+using Arkanoid.Replay;
 using Arkanoid.UI;
 using UnityEngine;
 using VContainer;
@@ -67,9 +68,16 @@ namespace Arkanoid.Gameplay
                 blockField = gameObject.AddComponent<BlockField>();
             }
 
+            var inputRouter = GetComponent<GameplayInputRouter>();
+            if (inputRouter == null)
+            {
+                inputRouter = gameObject.AddComponent<GameplayInputRouter>();
+            }
+
             if (inputReader != null)
             {
-                builder.RegisterComponent(inputReader).As<IGameplayInput>();
+                inputRouter.BindLive(inputReader);
+                builder.RegisterComponent(inputRouter).As<IGameplayInput>();
             }
 
             if (paddle != null)
@@ -108,6 +116,7 @@ namespace Arkanoid.Gameplay
 
             container.TryResolve<LevelConfig>(out var levelConfig);
             container.TryResolve<DifficultyDirector>(out var difficulty);
+            container.TryResolve<ReplayService>(out var replay);
 
             var cam = gameplayCamera != null ? gameplayCamera : Camera.main;
 
@@ -115,6 +124,14 @@ namespace Arkanoid.Gameplay
             {
                 inputReader.Configure(paddleConfig);
                 inputReader.SetCamera(cam);
+            }
+
+            if (input is GameplayInputRouter router)
+            {
+                router.BindLive(inputReader);
+                router.SetCamera(cam);
+                replay?.Bind(router);
+                router.BindReplay(replay);
             }
 
             if (paddle != null)
@@ -199,7 +216,7 @@ namespace Arkanoid.Gameplay
                 auto.Arm(eventBus, stateMachine, levelNumber: 1);
             }
 
-            Debug.Log("[GameplayArena] Этап 5 готов: Blocks + PowerUps + Difficulty + HUD.");
+            Debug.Log("[GameplayArena] Этап 6 готов: Blocks + PowerUps + Difficulty + Replay + HUD.");
         }
 
         private void EnsureHud(
@@ -236,7 +253,8 @@ namespace Arkanoid.Gameplay
             }
 
             container.TryResolve<DifficultyDirector>(out var difficulty);
-            hud.Configure(eventBus, stateMachine, lives, max, level, difficulty, cam);
+            container.TryResolve<ReplayService>(out var replay);
+            hud.Configure(eventBus, stateMachine, lives, max, level, difficulty, cam, replay);
             EnsureGameOverButton(eventBus, stateMachine, cam);
         }
 
