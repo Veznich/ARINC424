@@ -18,7 +18,8 @@ MonoBehaviour:
   fallSpeed: 2.5
   lifetimeSeconds: 14
   magnetPullSpeed: 22
-  maxBalls: 3
+  maxBalls: 5
+  multiBallSpawnCount: 2
   fireballDuration: 5
   widePaddleDuration: 6
   slowTimeDuration: 4

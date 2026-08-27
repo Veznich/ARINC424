@@ -15,10 +15,14 @@ MonoBehaviour:
   strugglingLivesLostPerLevel: 2
   easyLevelsWithoutDeath: 3
   dropChanceBonus: 0.1
-  maxDropChance: 0.3
+  maxDropChance: 0.35
   ballSpeedPenalty: 0.1
   extraBlockHp: 1
+  maxExtraBlockHp: 2
   ballSpeedBonus: 0.1
   dropChancePenalty: 0.05
+  minDropChance: 0.1
+  minBallSpeedMul: 0.75
+  maxBallSpeedMul: 1.35
   lerpSpeed: 2
   showNotifications: 1

@@ -53,8 +53,10 @@ namespace Arkanoid.Core
                 .AsSelf();
             builder.Register<ISaveService, SaveService>(Lifetime.Singleton);
             builder.Register<LevelGenerator>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<LevelService>().AsSelf();
+            // Lives до Difficulty — DI + «с 1-й попытки» по реальному −жизнь
             builder.RegisterEntryPoint<LivesService>().AsSelf();
+            builder.RegisterEntryPoint<Arkanoid.Difficulty.DifficultyDirector>().AsSelf();
+            builder.RegisterEntryPoint<LevelService>().AsSelf();
 
             RegisterConfigs(builder);
 

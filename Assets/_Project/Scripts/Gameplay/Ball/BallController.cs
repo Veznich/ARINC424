@@ -1,5 +1,6 @@
 using Arkanoid.Configs;
 using Arkanoid.Core;
+using Arkanoid.Difficulty;
 using Arkanoid.Input;
 using System;
 using UnityEngine;
@@ -30,6 +31,7 @@ namespace Arkanoid.Gameplay
         private BlockField _blocks;
         private LevelConfig _levelConfig;
         private PowerUpController _powerUps;
+        private DifficultyDirector _difficulty;
 
         private Rigidbody _body;
         private Vector3 _velocity;
@@ -96,10 +98,11 @@ namespace Arkanoid.Gameplay
             PlayfieldBounds bounds,
             BlockField blocks = null,
             LevelConfig levelConfig = null,
-            PowerUpController powerUps = null)
+            PowerUpController powerUps = null,
+            DifficultyDirector difficulty = null)
         {
             Construct(config, paddleConfig, input, stateMachine, eventBus);
-            Bind(paddle, bounds, blocks, levelConfig, powerUps);
+            Bind(paddle, bounds, blocks, levelConfig, powerUps, difficulty);
         }
 
         public void Bind(
@@ -107,16 +110,18 @@ namespace Arkanoid.Gameplay
             PlayfieldBounds bounds,
             BlockField blocks = null,
             LevelConfig levelConfig = null,
-            PowerUpController powerUps = null)
+            PowerUpController powerUps = null,
+            DifficultyDirector difficulty = null)
         {
             _paddle = paddle;
             _bounds = bounds;
             _blocks = blocks;
             _levelConfig = levelConfig;
             _powerUps = powerUps;
+            _difficulty = difficulty;
             if (_config != null)
             {
-                _currentSpeed = _config.baseSpeed;
+                _currentSpeed = EffectiveBaseSpeed;
             }
         }
 
@@ -190,7 +195,7 @@ namespace Arkanoid.Gameplay
             _slowTimer = 0f;
             _slowMultiplier = 1f;
             _dockOffsetX = 0f;
-            _currentSpeed = _config != null ? _config.baseSpeed : 10f;
+            _currentSpeed = EffectiveBaseSpeed;
             _speedTimer = 0f;
             FollowPaddle();
             if (publishEvent)
@@ -222,10 +227,19 @@ namespace Arkanoid.Gameplay
             }
 
             _docked = false;
-            _currentSpeed = _config != null ? _config.baseSpeed : 10f;
+            _currentSpeed = EffectiveBaseSpeed;
             _velocity = direction.normalized * _currentSpeed;
             _eventBus?.Publish(new BallLaunchedEvent(_velocity.normalized));
         }
+
+        private float DiffSpeedMul =>
+            _difficulty != null ? _difficulty.BallSpeedMultiplier : 1f;
+
+        private float EffectiveBaseSpeed =>
+            (_config != null ? _config.baseSpeed : 10f) * DiffSpeedMul;
+
+        private float EffectiveMaxSpeed =>
+            (_config != null ? _config.maxSpeed : 16f) * DiffSpeedMul;
 
         private void TryLaunchFromInput()
         {
@@ -282,7 +296,7 @@ namespace Arkanoid.Gameplay
             _speedTimer = 0f;
             _currentSpeed = Mathf.Min(
                 _currentSpeed * (1f + _config.speedIncrement),
-                _config.maxSpeed);
+                EffectiveMaxSpeed);
             if (_velocity.sqrMagnitude > 0.0001f)
             {
                 _velocity = _velocity.normalized * _currentSpeed;
@@ -372,7 +386,7 @@ namespace Arkanoid.Gameplay
             var pos = transform.position;
             pos.z = 0f;
             var r = defaultRadius;
-            var minSpeed = _config != null ? _config.baseSpeed * 0.5f : 5f;
+            var minSpeed = EffectiveBaseSpeed * 0.5f;
             var wallAngle = _config != null ? _config.wallBounceAngle : 15f;
             var hitWall = false;
 

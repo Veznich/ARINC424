@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Arkanoid.Configs;
 using Arkanoid.Core;
+using Arkanoid.Difficulty;
 using Arkanoid.Pool;
 using UnityEngine;
 
@@ -18,6 +19,7 @@ namespace Arkanoid.Gameplay
         private LevelConfig _config;
         private IEventBus _eventBus;
         private PlayfieldBounds _bounds;
+        private DifficultyDirector _difficulty;
         private ObjectPool<BlockView> _pool;
         private BlockView _prefab;
 
@@ -35,11 +37,16 @@ namespace Arkanoid.Gameplay
 
         public int ActiveCount => _active.Count;
 
-        public void Configure(LevelConfig config, IEventBus eventBus, PlayfieldBounds bounds = null)
+        public void Configure(
+            LevelConfig config,
+            IEventBus eventBus,
+            PlayfieldBounds bounds = null,
+            DifficultyDirector difficulty = null)
         {
             _config = config;
             _eventBus = eventBus;
             _bounds = bounds;
+            _difficulty = difficulty;
             EnsurePool();
             Subscribe();
         }
@@ -121,7 +128,13 @@ namespace Arkanoid.Gameplay
                     continue;
                 }
 
-                SpawnAt(cell.X, cell.Y, cell.Type, cell.Hits, scale);
+                var hits = cell.Hits;
+                if (_difficulty != null && hits > 0)
+                {
+                    hits += _difficulty.ExtraBlockHits;
+                }
+
+                SpawnAt(cell.X, cell.Y, cell.Type, hits, scale);
             }
 
             if (_active.Count == 0)
@@ -365,21 +378,47 @@ namespace Arkanoid.Gameplay
             return true;
         }
 
-        public bool TryWorldToCell(Vector3 world, out int x, out int y)
+        /// <summary>Колонка по world X (платформа ниже сетки — Y не используем).</summary>
+        public bool TryWorldToColumn(float worldX, out int x)
         {
             x = 0;
-            y = 0;
             if (_cellSize < 0.001f || _width <= 0)
             {
                 return false;
             }
 
-            x = Mathf.RoundToInt((world.x - _origin.x) / _cellSize);
+            x = Mathf.RoundToInt((worldX - _origin.x) / _cellSize);
+            return x >= 0 && x < _width;
+        }
+
+        public bool TryWorldToCell(Vector3 world, out int x, out int y)
+        {
+            x = 0;
+            y = 0;
+            if (!TryWorldToColumn(world.x, out x))
+            {
+                return false;
+            }
+
             y = Mathf.RoundToInt((world.y - _origin.y) / _cellSize);
-            return x >= 0 && y >= 0 && x < _width && y < _height;
+            return y >= 0 && y < _height;
         }
 
         public int GridHeight => _height;
+        public int GridWidth => _width;
+
+        /// <summary>Мир-центр клетки (для VFX лазера).</summary>
+        public bool TryGetCellWorld(int x, int y, out Vector3 world)
+        {
+            world = Vector3.zero;
+            if (x < 0 || y < 0 || x >= _width || y >= _height)
+            {
+                return false;
+            }
+
+            world = CellToWorld(x, y);
+            return true;
+        }
 
         private void RemoveBlock(BlockView block)
         {

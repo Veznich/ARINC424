@@ -20,7 +20,9 @@ namespace Arkanoid.Configs
         [Tooltip("Запас по времени; дроп не исчезает над платформой раньше времени")]
         public float lifetimeSeconds = 14f;
         public float magnetPullSpeed = 22f;
-        public int maxBalls = 3;
+        public int maxBalls = 5;
+        [Tooltip("Сколько доп. мячей даёт один Multi Ball")]
+        public int multiBallSpawnCount = 2;
 
         [Header("Длительности (сек)")]
         public float fireballDuration = 5f;

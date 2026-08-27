@@ -85,13 +85,13 @@ namespace Arkanoid.UI
             {
                 var t = timers[i];
                 var s = _slots[i];
-                s.Root.localPosition = new Vector3(i * 1.2f, 0f, 0f);
+                s.Root.localPosition = new Vector3(i * 1.4f, 0f, 0f);
 
                 if (s.Type != t.Type || s.Icon.childCount == 0)
                 {
                     s.Type = t.Type;
                     PowerUpIcon3D.Build(s.Icon, t.Type);
-                    s.Icon.localScale = Vector3.one * 0.715f; // +30% к 0.55
+                    s.Icon.localScale = Vector3.one * 0.945f; // +15% к 0.822
                 }
 
                 // Полоска таймера под значком (масштаб по X = remaining)
@@ -115,7 +115,7 @@ namespace Arkanoid.UI
         {
             var root = new GameObject("Slot" + index).transform;
             root.SetParent(_row, false);
-            root.localPosition = new Vector3(index * 1.2f, 0f, 0f);
+            root.localPosition = new Vector3(index * 1.4f, 0f, 0f);
 
             var icon = new GameObject("Icon").transform;
             icon.SetParent(root, false);

@@ -11,6 +11,9 @@ namespace Arkanoid.Gameplay
 
         private Transform _visual;
 
+        /// <summary>Масштаб 3D-значка (дропы и Info).</summary>
+        public const float VisualScale = 2.04f;
+
         public void Setup(PowerUpType type, float lifetime, Vector3 position)
         {
             Type = type;
@@ -28,7 +31,7 @@ namespace Arkanoid.Gameplay
             }
 
             PowerUpIcon3D.Build(_visual, type);
-            _visual.localScale = Vector3.one * 2.04f; // −40% от 3.4
+            _visual.localScale = Vector3.one * VisualScale;
             gameObject.SetActive(true);
         }
 

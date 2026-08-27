@@ -77,6 +77,17 @@ namespace Arkanoid.Core
         }
     }
 
+    /// <summary>Сессионная статистика (для Info HUD).</summary>
+    public readonly struct SessionStatsChangedEvent
+    {
+        public readonly int FirstTryClears;
+
+        public SessionStatsChangedEvent(int firstTryClears)
+        {
+            FirstTryClears = firstTryClears;
+        }
+    }
+
     /// <summary>Удар по блоку (до уничтожения).</summary>
     public readonly struct BlockHitEvent
     {
@@ -154,6 +165,30 @@ namespace Arkanoid.Core
         public PowerUpTimersChangedEvent(Gameplay.PowerUpTimerInfo[] timers)
         {
             Timers = timers;
+        }
+    }
+
+    /// <summary>Изменились модификаторы сложности.</summary>
+    public readonly struct DifficultyChangedEvent
+    {
+        public readonly float DropChance;
+        public readonly float BallSpeedMultiplier;
+        public readonly int ExtraBlockHits;
+        public readonly Arkanoid.Difficulty.DifficultyBias Bias;
+        public readonly string ToastMessage;
+
+        public DifficultyChangedEvent(
+            float dropChance,
+            float ballSpeedMultiplier,
+            int extraBlockHits,
+            Arkanoid.Difficulty.DifficultyBias bias,
+            string toastMessage)
+        {
+            DropChance = dropChance;
+            BallSpeedMultiplier = ballSpeedMultiplier;
+            ExtraBlockHits = extraBlockHits;
+            Bias = bias;
+            ToastMessage = toastMessage;
         }
     }
 

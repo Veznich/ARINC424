@@ -1,5 +1,6 @@
 using Arkanoid.Configs;
 using Arkanoid.Core;
+using Arkanoid.Difficulty;
 using Arkanoid.Input;
 using Arkanoid.UI;
 using UnityEngine;
@@ -106,6 +107,7 @@ namespace Arkanoid.Gameplay
             }
 
             container.TryResolve<LevelConfig>(out var levelConfig);
+            container.TryResolve<DifficultyDirector>(out var difficulty);
 
             var cam = gameplayCamera != null ? gameplayCamera : Camera.main;
 
@@ -122,7 +124,7 @@ namespace Arkanoid.Gameplay
 
             if (blockField != null && levelConfig != null)
             {
-                blockField.Configure(levelConfig, eventBus, bounds);
+                blockField.Configure(levelConfig, eventBus, bounds, difficulty);
             }
 
             container.TryResolve<PowerUpConfig>(out var powerUpConfig);
@@ -147,7 +149,8 @@ namespace Arkanoid.Gameplay
                     ball,
                     blockField,
                     bounds,
-                    livesService);
+                    livesService,
+                    difficulty);
             }
 
             if (ball != null)
@@ -162,7 +165,8 @@ namespace Arkanoid.Gameplay
                     bounds,
                     blockField,
                     levelConfig,
-                    powerUps);
+                    powerUps,
+                    difficulty);
             }
 
             GameplayVisualBootstrap.Apply(
@@ -195,7 +199,7 @@ namespace Arkanoid.Gameplay
                 auto.Arm(eventBus, stateMachine, levelNumber: 1);
             }
 
-            Debug.Log("[GameplayArena] Этап 4 готов: Blocks + PowerUps + HUD.");
+            Debug.Log("[GameplayArena] Этап 5 готов: Blocks + PowerUps + Difficulty + HUD.");
         }
 
         private void EnsureHud(
@@ -231,7 +235,8 @@ namespace Arkanoid.Gameplay
                 level = levelService.CurrentLevel;
             }
 
-            hud.Configure(eventBus, stateMachine, lives, max, level);
+            container.TryResolve<DifficultyDirector>(out var difficulty);
+            hud.Configure(eventBus, stateMachine, lives, max, level, difficulty, cam);
             EnsureGameOverButton(eventBus, stateMachine, cam);
         }
 

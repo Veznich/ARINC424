@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Arkanoid.Configs;
 using Arkanoid.Core;
+using Arkanoid.Difficulty;
 using Arkanoid.Pool;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ namespace Arkanoid.Gameplay
         private BlockField _blocks;
         private PlayfieldBounds _bounds;
         private LivesService _lives;
+        private DifficultyDirector _difficulty;
 
         private ObjectPool<PowerUpDrop> _dropPool;
         private readonly List<PowerUpDrop> _activeDrops = new List<PowerUpDrop>(16);
@@ -56,7 +58,8 @@ namespace Arkanoid.Gameplay
             BallController ball,
             BlockField blocks,
             PlayfieldBounds bounds,
-            LivesService lives)
+            LivesService lives,
+            DifficultyDirector difficulty = null)
         {
             _config = config;
             _paddleConfig = paddleConfig;
@@ -68,6 +71,7 @@ namespace Arkanoid.Gameplay
             _blocks = blocks;
             _bounds = bounds;
             _lives = lives;
+            _difficulty = difficulty;
             EnsurePools();
             Subscribe();
             ClearEffects(keepBalls: false);
@@ -168,7 +172,7 @@ namespace Arkanoid.Gameplay
                 return;
             }
 
-            if (_rng.NextDouble() > _config.dropChance)
+            if (_rng.NextDouble() > EffectiveDropChance)
             {
                 return;
             }
@@ -197,6 +201,11 @@ namespace Arkanoid.Gameplay
             };
             return values[_rng.Next(0, values.Length)];
         }
+
+        private float EffectiveDropChance =>
+            _difficulty != null
+                ? _difficulty.EffectiveDropChance
+                : (_config != null ? _config.dropChance : 0.2f);
 
         private void SpawnDrop(PowerUpType type, Vector3 pos)
         {
@@ -308,7 +317,11 @@ namespace Arkanoid.Gameplay
                     PublishTimers();
                     return;
                 case PowerUpType.MultiBall:
-                    SpawnExtraBall();
+                    var spawn = _config != null ? Mathf.Max(1, _config.multiBallSpawnCount) : 2;
+                    for (var i = 0; i < spawn; i++)
+                    {
+                        SpawnExtraBall();
+                    }
                     PublishTimers();
                     return;
                 case PowerUpType.Shield:
@@ -439,19 +452,63 @@ namespace Arkanoid.Gameplay
             }
 
             _laserTimer = _config != null ? _config.laserInterval : 0.5f;
-            if (!_blocks.TryWorldToCell(_paddle.Position, out var cx, out var cy))
+            // Платформа ниже сетки — берём только колонку по X, луч снизу вверх
+            if (!_blocks.TryWorldToColumn(_paddle.Position.x, out var cx))
             {
                 return;
             }
 
-            // Луч вверх по колонке
-            for (var y = cy + 1; y < _blocks.GridHeight; y++)
+            var hitY = -1;
+            for (var y = 0; y < _blocks.GridHeight; y++)
             {
                 if (_blocks.DamageCell(cx, y))
                 {
+                    hitY = y;
                     break; // один блок за выстрел
                 }
             }
+
+            SpawnLaserBeam(cx, hitY);
+        }
+
+        private void SpawnLaserBeam(int columnX, int hitY)
+        {
+            if (_paddle == null || _blocks == null)
+            {
+                return;
+            }
+
+            var from = _paddle.Position + Vector3.up * 0.35f;
+            Vector3 to;
+            if (hitY >= 0 && _blocks.TryGetCellWorld(columnX, hitY, out var cell))
+            {
+                to = cell;
+            }
+            else if (_blocks.TryGetCellWorld(columnX, _blocks.GridHeight - 1, out var top))
+            {
+                to = top + Vector3.up * 0.5f;
+            }
+            else
+            {
+                to = from + Vector3.up * 8f;
+            }
+
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.name = "LaserBeam";
+            UnityEngine.Object.Destroy(go.GetComponent<Collider>());
+            var mid = (from + to) * 0.5f;
+            var len = Mathf.Max(0.2f, Vector3.Distance(from, to));
+            go.transform.position = mid;
+            go.transform.up = (to - from).normalized;
+            go.transform.localScale = new Vector3(0.12f, len, 0.12f);
+            var mat = Utils.RuntimeMaterialUtil.CreatePseudo3d(new Color(1f, 0.25f, 0.4f), 0.55f);
+            var rend = go.GetComponent<MeshRenderer>();
+            if (rend != null && mat != null)
+            {
+                rend.sharedMaterial = mat;
+            }
+
+            UnityEngine.Object.Destroy(go, 0.12f);
         }
 
         private void SpawnExtraBall()
@@ -467,7 +524,14 @@ namespace Arkanoid.Gameplay
             var eb = _ballPool.Get();
             var origin = _ball != null ? _ball.transform.position : _paddle.Position + Vector3.up;
             var dir = Quaternion.Euler(0f, 0f, _rng.Next(-40, 41)) * Vector3.up;
-            var speed = 10f;
+            var speed = _ball != null
+                ? Mathf.Max(6f, _ball.Velocity.magnitude > 0.1f ? _ball.Velocity.magnitude : 10f)
+                : 10f;
+            if (speed < 1f)
+            {
+                speed = 10f;
+            }
+
             var halfH = _paddleConfig != null ? _paddleConfig.height * 0.5f : 0.2f;
             eb.Launch(origin, dir, speed, _blocks, _bounds, _paddle, halfH);
             if (_fireball)
