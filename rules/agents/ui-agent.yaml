@@ -1,0 +1,4 @@
+name: ui-agent
+role: ui
+globs:
+  - Assets/Scripts/UI/**

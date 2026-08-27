@@ -1,0 +1,21 @@
+{
+  "name": "Arkanoid.Editor",
+  "rootNamespace": "Arkanoid.StudioEditor",
+  "references": [
+    "Arkanoid.Runtime",
+    "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.RenderPipelines.Core.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

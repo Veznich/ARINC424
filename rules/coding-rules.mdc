@@ -1,0 +1,17 @@
+---
+description: Стиль кода C# — именование, поля
+globs: "**/*.cs"
+alwaysApply: false
+---
+
+# Coding Rules
+
+1. Классы / методы: PascalCase
+2. Интерфейсы: `I` + PascalCase
+3. Приватные поля: `_camelCase`
+4. Публичные методы: PascalCase
+5. Константы: в `GameDefaults` / `UITheme` (не размазывать magic numbers)
+6. `var` — где тип очевиден
+7. Namespaces: проектные (`Core`, `Map`, `Battle`, `UI`, `AR`, …)
+8. **UI CTA:** крупные кнопки без действия — `SetActive(false)`, не серый `interactable=false` при `Transition.None` (выглядит «живым»).
+9. **Состояние сущности на UI:** один snapshot/SSOT на фичу — не плодить параллельные эвристики в радаре/маркере/кнопках/текстах.

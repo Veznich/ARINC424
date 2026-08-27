@@ -1,0 +1,10 @@
+---
+description: Spec vs implementation docs maintenance
+alwaysApply: true
+---
+
+# Spec / docs maintenance
+
+- Spec = утверждено; docs = как в коде
+- Менять spec только по решению пользователя
+- Любая смена логики → changelog в docs

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 858af6ef96d4f6e4d9289fadbdce6ade, type: 3}
+  m_Name: ComboConfig
+  m_EditorClassIdentifier: Arkanoid.Runtime::Arkanoid.Configs.ComboConfig
+  tiers:
+  - blocksRequired: 3
+    multiplier: 2
+    displayLabel: COMBO x2!
+  - blocksRequired: 5
+    multiplier: 3
+    displayLabel: COMBO x3!
+  - blocksRequired: 10
+    multiplier: 5
+    displayLabel: MEGA COMBO x5!
+  - blocksRequired: 20
+    multiplier: 10
+    displayLabel: ULTRA COMBO x10!
+  resetOnWallHit: 1
+  resetOnLifeLost: 1

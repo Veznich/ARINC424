@@ -1,0 +1,8 @@
+---
+description: Generated promo images go to project Promo/
+alwaysApply: true
+---
+
+# Promo assets
+
+После GenerateImage — сохранять в `Promo/` корня проекта (не только Cursor assets/). Не импортировать в Unity Assets без запроса.

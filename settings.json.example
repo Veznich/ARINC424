@@ -1,0 +1,14 @@
+{
+  "rules": { "enabled": true, "directory": ".cursor/rules", "autoApply": true },
+  "agents": {
+    "enabled": true,
+    "directory": ".cursor/agents",
+    "rulesAgentsDirectory": ".cursor/rules/agents",
+    "default": "si"
+  },
+  "project": {
+    "engine": "Unity",
+    "orientation": "portrait",
+    "referenceResolution": "1080x1920"
+  }
+}

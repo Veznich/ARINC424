@@ -1,0 +1,10 @@
+---
+description: Tuning in code/defaults, not Inspector clicks
+alwaysApply: true
+---
+
+# Modify or instruct
+
+Числовые тюнинги — в код/defaults + applier. Не просить «выставь в Inspector».
+Пересоздание UI — через builder/фабрики проекта.
+Ручной шаг пользователя — только меню проекта / Play.

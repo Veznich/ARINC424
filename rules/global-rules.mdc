@@ -1,0 +1,19 @@
+---
+description: Глобальные правила — анализ, архитектура, docs, perf
+alwaysApply: true
+---
+
+# Global Rules
+
+1. Сначала анализируй, потом пиши код (если нет «сделай/исправь»).
+2. Не ломай существующую архитектуру и DI.
+3. SOLID; слои Presentation / Logic / Data / Infrastructure.
+4. Clean Architecture по смыслу: UI не владеет формулами боя/GPS.
+5. Все изменения логики — в `DOCS.md` (changelog).
+6. Перед коммитом (когда просят) — нет Find/Instantiate в Update; пулы где нужно.
+7. Не плодить техдолг и дубли ассетов.
+8. CQRS / Addressables / сервер — только по явному запросу.
+
+## no-breaking-changes
+
+- Не ломать публичный API и формат save без миграции; `[Obsolete]` на переход.

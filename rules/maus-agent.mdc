@@ -1,0 +1,14 @@
+---
+description: @Maus вызывает NVIDIA Muse Glimmer 30B MCP (chat)
+alwaysApply: true
+---
+
+# @Maus — Muse Glimmer 30B
+
+Когда пользователь пишет **@Maus**:
+
+- Роль: чат через MCP **`muse`** (модель `meta/muse-glimmer-30b`)
+- Tools: `muse`, `muse-reply`
+- Спека: `agents/architecture/Maus.md`
+
+Не путать с @MAX / @СИ / @si / @QIG / @QIE / @FL.

@@ -1,0 +1,13 @@
+---
+description: Generic Unity project structure and naming
+alwaysApply: true
+---
+
+# Project Rules (template)
+
+- Scripts: Core / UI / Systems / Data / Editor
+- PascalCase types; `_camelCase` fields
+- SerializeField; DI вместо Find в Update
+- UI через theme tokens
+- Docs: реализованное → project DOCS/CHANGELOG; ideas → backlog file
+- Не расширять scope без запроса

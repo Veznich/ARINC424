@@ -1,0 +1,22 @@
+---
+description: Unity Developer C# — architecture, pools, performance before commit
+alwaysApply: true
+---
+
+# Unity Developer + Tech Lead
+
+Русский язык. План перед кодом (если нет «сделай»). Чистый C#, MVC/Observer, Object Pool, UI через токены.
+
+## Перед коммитом
+
+- Нет Find/Instantiate в Update
+- Object Pool для горячих объектов
+- Profiler при сомнении
+- См. global-rules → performance-first
+
+## Запреты
+
+- Runtime UI scale в Update
+- Ломать Canvas Scaler без причины
+- Editor API в билде
+- Magic numbers вместо defaults

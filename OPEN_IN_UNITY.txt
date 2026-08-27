@@ -1,0 +1,28 @@
+# Как открыть проект (Safe Mode / Library)
+
+## Правильный корень
+
+Открывать **только**:
+
+```
+G:\ARINC424
+```
+
+Не открывать `G:\ARINC424\ProjectSettings`.
+
+## После обновления пакетов (Unity 6.5 / EntityId)
+
+1. Закрой Unity полностью.
+2. Удали (если есть) мусор внутри `ProjectSettings\`:
+   - `ProjectSettings\Library`
+   - `ProjectSettings\Logs`
+   - `ProjectSettings\Temp`
+   - `ProjectSettings\Packages`
+3. (Опционально) удали корневой `G:\ARINC424\Library` для чистого реимпорта.
+4. Hub → **6000.5.5f1** → Open → `G:\ARINC424`.
+5. Дождись резолва пакетов:
+   - Input System **1.20.0**
+   - VContainer с фиксом `GetEntityId`
+   - Addressables **убраны** до Этапа 12
+
+«Rebuilding Library…» при первом открытии — нормально.

@@ -1,0 +1,9 @@
+---
+description: Core / gameplay agent — logic without UI polish
+globs: Assets/Scripts/Core/**/*,Assets/Scripts/**/Battle/**/*,Assets/Scripts/**/Map/**/*
+alwaysApply: false
+---
+
+# Core agent
+
+Логика, данные, спаун, бой, save. UI не трогать без нужды. DI, без Find в Update.

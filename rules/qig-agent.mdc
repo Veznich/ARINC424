@@ -1,0 +1,15 @@
+---
+description: @QIG вызывает NVIDIA qwen-image MCP для генерации картинок
+alwaysApply: true
+---
+
+# @QIG — image gen
+
+Когда пользователь пишет **@QIG** (или «QIG» как вызов агента):
+
+- Роль: генерация изображений через MCP **`qwen-image`**
+- Primary tool: `qwen_image`
+- Direct GenAI: `nvidia_image` (Flux и др.)
+- Спека агента: `agents/art/QIG.md`
+
+Не путать с @si / @СИ.

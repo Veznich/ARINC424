@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3da651b6d9965834696446107e199d25, type: 3}
+  m_Name: GameConfigCatalog
+  m_EditorClassIdentifier: Arkanoid.Runtime::Arkanoid.Configs.GameConfigCatalog
+  ball: {fileID: 11400000, guid: 4c5552467ca124940bb62ff997c12a67, type: 2}
+  paddle: {fileID: 11400000, guid: cbb33c1d2c7eb8442b4a825725813a8c, type: 2}
+  level: {fileID: 11400000, guid: 83ec4afec41646b47b9c6d003b16dad8, type: 2}
+  powerUp: {fileID: 11400000, guid: fa57ad09921d8a54e849b0d77c509061, type: 2}
+  difficulty: {fileID: 11400000, guid: 7a91e80af3913224491247463f1d39f0, type: 2}
+  combo: {fileID: 11400000, guid: ceb2db23874b9f042af6d3ad4841ec0a, type: 2}
+  player: {fileID: 11400000, guid: 2b54e1ae70b682949a41d5b59aeda173, type: 2}

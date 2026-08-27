@@ -1,0 +1,14 @@
+---
+description: @MAX вызывает NVIDIA MiniMax M3 MCP (chat)
+alwaysApply: true
+---
+
+# @MAX — MiniMax
+
+Когда пользователь пишет **@MAX**:
+
+- Роль: чат через MCP **`minimax`** (модель `minimaxai/minimax-m3`)
+- Tools: `minimax`, `minimax-reply`
+- Спека: `agents/architecture/MAX.md`
+
+Не путать с @СИ / @si / @QIG / @QIE.

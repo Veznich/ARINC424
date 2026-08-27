@@ -1,0 +1,14 @@
+---
+description: Правила Unity C# — Update, пулы, утечки
+globs: Assets/**/*.cs
+alwaysApply: false
+---
+
+# Unity Rules
+
+1. Не используй `FindObjectOfType` / `Find*` в `Update`.
+2. Object Pooling для часто создаваемых объектов.
+3. Проверяй утечки (события, корутины, RT/WebCam).
+4. Оптимизируй Draw Calls / overdraw UI.
+5. Addressables — **не** подключать без запроса (MVP 1).
+6. Null-проверки на сервисах DI; `[SerializeField]` для инспектора.

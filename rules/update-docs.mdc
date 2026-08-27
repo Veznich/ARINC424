@@ -1,0 +1,9 @@
+---
+description: Update project docs after code changes
+alwaysApply: true
+---
+
+# Update docs
+
+После изменения логики — обновить docs (алгоритмы/модули) и changelog.
+Рефакторинг без смены поведения — только changelog при необходимости.

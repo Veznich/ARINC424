@@ -1,0 +1,15 @@
+---
+description: @QIE вызывает NVIDIA qwen-image-edit MCP для редактирования картинок
+alwaysApply: true
+---
+
+# @QIE — image edit
+
+Когда пользователь пишет **@QIE**:
+
+- Роль: редактирование изображений через MCP **`qwen-image-edit`**
+- Primary tool: `qwen_image_edit`
+- Direct GenAI: `nvidia_image_edit` (Flux Kontext и др.)
+- Спека: `agents/art/QIE.md`
+
+Не путать с @QIG (генерация) / @si / @СИ.

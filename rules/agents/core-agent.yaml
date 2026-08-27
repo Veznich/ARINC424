@@ -1,0 +1,4 @@
+name: core-agent
+role: gameplay logic
+globs:
+  - Assets/Scripts/Core/**

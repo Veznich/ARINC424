@@ -1,0 +1,14 @@
+---
+description: Правила UI — UITheme, SafeArea, 4 разрешения
+globs: Assets/Scripts/UI/**/*.cs, Assets/**/*UI*/**/*
+alwaysApply: false
+---
+
+# UI Rules
+
+1. Все размеры через `UITheme` токены.
+2. Проверяй SafeArea (`SafeAreaFitter`).
+3. Проверяй на 4 разрешениях (в т.ч. 1080×1920).
+4. Не используй фиксированные пиксели «на глаз».
+5. Layout Group / Content Size Fitter по необходимости.
+6. Не меняй Canvas Scaler без согласования.

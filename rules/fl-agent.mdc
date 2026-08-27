@@ -1,0 +1,14 @@
+---
+description: @FL вызывает NVIDIA FLUX.1-dev MCP для генерации картинок
+alwaysApply: true
+---
+
+# @FL — FLUX.1-dev
+
+Когда пользователь пишет **@FL**:
+
+- Роль: генерация через MCP **`flux`**
+- Модель: `black-forest-labs/flux.1-dev`
+- Спека: `agents/art/FL.md`
+
+Не путать с @QIG / @QIE / @MAX / @si / @СИ.

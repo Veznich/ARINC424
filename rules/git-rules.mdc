@@ -1,0 +1,14 @@
+---
+description: Правила Git — коммиты, формат, бинарники
+globs: "**/*"
+alwaysApply: false
+---
+
+# Git Rules
+
+1. Коммиты только по явной просьбе пользователя.
+2. Формат: `feat|fix|refactor|ui|docs|map|battle|gps(scope): message`
+3. Пример: `feat(Battle): add damage calculation`
+4. Не коммитить большие бинарники, `Library/`, секреты без нужды.
+5. Не force-push в `main` без явной просьбы.
+6. Перед коммитом: нет `error CS`; `DOCS.md` обновлён при смене логики.

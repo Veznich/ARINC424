@@ -1,0 +1,14 @@
+---
+description: Keep Unity kit in sync
+alwaysApply: true
+---
+
+# Sync Cursor Unity Kit
+
+Канон: `G:\Агенты под Курсор\Unity`
+
+При правке `.cursor/agents|rules|skills|docs` — обновить обобщённые файлы здесь (иерархия `agents/<отдел>/`).
+
+Не копировать имена продуктов, package id, MCP-секреты, игровые скрипты.
+
+Вызовы: `@si` = Studio Director; `@СИ` = техсоветник.

@@ -1,0 +1,9 @@
+---
+description: UI agent — Canvas, theme tokens, panels
+globs: Assets/Scripts/UI/**/*,**/UITheme*.cs,**/ResponsiveUI.cs,**/MobileUILayout.cs
+alwaysApply: false
+---
+
+# UI agent
+
+Только токены темы. SafeArea. Без жёстких пикселей. Не править Canvas Scaler без причины.

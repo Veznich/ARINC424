@@ -1,0 +1,9 @@
+---
+description: Responsive mobile UI rules
+globs: Assets/Scripts/**/*.cs
+alwaysApply: false
+---
+
+# Responsive UI
+
+Reference portrait (часто 1080×1920). Match ~0.5. SafeArea. Кнопки ≥110px. Проверка на 4 разрешениях.
