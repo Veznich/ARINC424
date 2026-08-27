@@ -40,5 +40,20 @@ namespace Arkanoid.Configs
         [HideInInspector] public float generatorIntervalSeconds = 5f;
         [HideInInspector] public float frozenSlowDuration = 1f;
         [HideInInspector] public float frozenSpeedMultiplier = 0.45f;
+
+        [ContextMenu("Reset to MVP Defaults")]
+        private void ResetToMvpDefaults() => MvpConfigDefaults.Apply(this);
+
+        private void OnValidate()
+        {
+            gridWidth = Mathf.Max(1, gridWidth);
+            gridHeight = Mathf.Max(1, gridHeight);
+            startBlockCount = Mathf.Max(1, startBlockCount);
+            blocksPerLevel = Mathf.Max(0, blocksPerLevel);
+            maxBlockCount = Mathf.Max(startBlockCount, maxBlockCount);
+            tierUnlockEveryLevels = Mathf.Max(1, tierUnlockEveryLevels);
+            maxBlockTier = Mathf.Clamp(maxBlockTier, 1, 8);
+            blockScale = Mathf.Clamp(blockScale, 0.1f, 2f);
+        }
     }
 }

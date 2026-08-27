@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Arkanoid.Configs
 {
-    /// <summary>Множители комбо и пороги блоков подряд.</summary>
+    /// <summary>Множители комбо и пороги блоков подряд. UX — Этап 10.</summary>
     [CreateAssetMenu(fileName = "ComboConfig", menuName = "Arkanoid/Configs/ComboConfig")]
     public sealed class ComboConfig : ScriptableObject
     {
@@ -25,5 +25,8 @@ namespace Arkanoid.Configs
 
         public bool resetOnWallHit = true;
         public bool resetOnLifeLost = true;
+
+        [ContextMenu("Reset to MVP Defaults")]
+        private void ResetToMvpDefaults() => MvpConfigDefaults.Apply(this);
     }
 }

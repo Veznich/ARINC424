@@ -3,6 +3,7 @@ using Arkanoid.Core;
 using Arkanoid.Difficulty;
 using Arkanoid.Input;
 using Arkanoid.Replay;
+using Arkanoid.Analytics;
 using Arkanoid.UI;
 using UnityEngine;
 using VContainer;
@@ -216,7 +217,7 @@ namespace Arkanoid.Gameplay
                 auto.Arm(eventBus, stateMachine, levelNumber: 1);
             }
 
-            Debug.Log("[GameplayArena] Этап 6 готов: Blocks + PowerUps + Difficulty + Replay + HUD.");
+            Debug.Log("[GameplayArena] Этап 8 готов: SO defaults locked.");
         }
 
         private void EnsureHud(
@@ -254,7 +255,8 @@ namespace Arkanoid.Gameplay
 
             container.TryResolve<DifficultyDirector>(out var difficulty);
             container.TryResolve<ReplayService>(out var replay);
-            hud.Configure(eventBus, stateMachine, lives, max, level, difficulty, cam, replay);
+            container.TryResolve<IAnalyticsService>(out var analytics);
+            hud.Configure(eventBus, stateMachine, lives, max, level, difficulty, cam, replay, analytics);
             EnsureGameOverButton(eventBus, stateMachine, cam);
         }
 

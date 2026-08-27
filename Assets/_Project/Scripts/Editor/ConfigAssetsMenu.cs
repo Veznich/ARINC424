@@ -6,11 +6,12 @@ using UnityEngine;
 namespace Arkanoid.StudioEditor
 {
     /// <summary>
-    /// Меню: создать все конфиги MVP и каталог одной командой.
+    /// Меню: создать / сбросить / валидировать конфиги MVP.
     /// </summary>
     public static class ConfigAssetsMenu
     {
         private const string CONFIGS_PATH = "Assets/_Project/Configs";
+        private const string CATALOG_PATH = CONFIGS_PATH + "/GameConfigCatalog.asset";
 
         [MenuItem("Arkanoid/Configs/Create All Default Configs")]
         public static void CreateAllDefaults()
@@ -25,7 +26,7 @@ namespace Arkanoid.StudioEditor
             var combo = CreateAsset<ComboConfig>($"{CONFIGS_PATH}/ComboConfig.asset");
             var player = CreateAsset<PlayerConfig>($"{CONFIGS_PATH}/PlayerConfig.asset");
 
-            var catalog = CreateAsset<GameConfigCatalog>($"{CONFIGS_PATH}/GameConfigCatalog.asset");
+            var catalog = CreateAsset<GameConfigCatalog>(CATALOG_PATH);
             catalog.ball = ball;
             catalog.paddle = paddle;
             catalog.level = level;
@@ -35,10 +36,84 @@ namespace Arkanoid.StudioEditor
             catalog.player = player;
             EditorUtility.SetDirty(catalog);
 
+            MvpConfigDefaults.ApplyAll(catalog);
+            MarkDirty(ball, paddle, level, powerUp, difficulty, combo, player, catalog);
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Selection.activeObject = catalog;
-            Debug.Log("[Arkanoid] Конфиги созданы в " + CONFIGS_PATH);
+            Debug.Log("[Arkanoid] Конфиги созданы / обновлены в " + CONFIGS_PATH);
+        }
+
+        [MenuItem("Arkanoid/Configs/Apply MVP Defaults")]
+        public static void ApplyMvpDefaults()
+        {
+            var catalog = AssetDatabase.LoadAssetAtPath<GameConfigCatalog>(CATALOG_PATH);
+            if (catalog == null)
+            {
+                Debug.LogError("[Arkanoid] Нет GameConfigCatalog. Сначала Create All Default Configs.");
+                return;
+            }
+
+            MvpConfigDefaults.ApplyAll(catalog);
+            MarkDirty(
+                catalog.ball,
+                catalog.paddle,
+                catalog.level,
+                catalog.powerUp,
+                catalog.difficulty,
+                catalog.combo,
+                catalog.player,
+                catalog);
+
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Arkanoid] MVP defaults применены ко всем SO в каталоге.");
+            Selection.activeObject = catalog;
+        }
+
+        [MenuItem("Arkanoid/Configs/Validate Catalog")]
+        public static void ValidateCatalog()
+        {
+            var catalog = AssetDatabase.LoadAssetAtPath<GameConfigCatalog>(CATALOG_PATH);
+            if (catalog == null)
+            {
+                Debug.LogError("[Arkanoid] GameConfigCatalog не найден: " + CATALOG_PATH);
+                return;
+            }
+
+            if (!catalog.IsValid(out var error))
+            {
+                Debug.LogError("[Arkanoid] Catalog invalid: " + error);
+                return;
+            }
+
+            var b = catalog.ball;
+            var p = catalog.paddle;
+            var l = catalog.level;
+            var pu = catalog.powerUp;
+            var d = catalog.difficulty;
+            var pl = catalog.player;
+
+            Debug.Log(
+                "[Arkanoid] Catalog OK · " +
+                $"Ball {b.baseSpeed}/{b.maxSpeed} · " +
+                $"Paddle maxX={p.maxX} · " +
+                $"Level L1={l.startBlockCount}+{l.blocksPerLevel} cap={l.maxBlockCount} tiers={l.maxBlockTier} · " +
+                $"Drop={pu.dropChance:F2} multi={pu.multiBallSpawnCount}/{pu.maxBalls} · " +
+                $"Diff levelHp={(d.useLevelExtraHpOnBlocks ? "on" : "off")} · " +
+                $"Lives {pl.startLives}/{pl.maxLives}");
+            Selection.activeObject = catalog;
+        }
+
+        private static void MarkDirty(params Object[] objects)
+        {
+            foreach (var o in objects)
+            {
+                if (o != null)
+                {
+                    EditorUtility.SetDirty(o);
+                }
+            }
         }
 
         private static T CreateAsset<T>(string path) where T : ScriptableObject

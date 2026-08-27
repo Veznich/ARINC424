@@ -4,6 +4,7 @@ using Arkanoid.Core;
 using Arkanoid.Difficulty;
 using Arkanoid.Gameplay;
 using Arkanoid.Replay;
+using Arkanoid.Analytics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,6 +19,7 @@ namespace Arkanoid.UI
         private IGameStateMachine _stateMachine;
         private DifficultyDirector _difficulty;
         private ReplayService _replay;
+        private IAnalyticsService _analytics;
         private Camera _uiCamera;
 
         private Text _livesText;
@@ -58,12 +60,14 @@ namespace Arkanoid.UI
             int level = 1,
             DifficultyDirector difficulty = null,
             Camera uiCamera = null,
-            ReplayService replay = null)
+            ReplayService replay = null,
+            IAnalyticsService analytics = null)
         {
             _eventBus = eventBus;
             _stateMachine = stateMachine;
             _difficulty = difficulty;
             _replay = replay;
+            _analytics = analytics;
             _uiCamera = uiCamera != null ? uiCamera : Camera.main;
             _lives = lives;
             _maxLives = maxLives;
@@ -570,8 +574,13 @@ namespace Arkanoid.UI
             }
             else
             {
+                _analytics?.Flush();
                 ShowToast("EXPORT OK", new Color(1f, 0.9f, 0.4f));
                 Debug.Log("[Info] Replay export: " + path);
+                if (_analytics != null)
+                {
+                    Debug.Log("[Info] Analytics: " + _analytics.FilePath);
+                }
             }
         }
 

@@ -27,9 +27,11 @@ namespace Arkanoid.Configs
         public float speedPerLevel = 0.045f;
         [Tooltip("−шанс дропа за каждый уровень после 1")]
         public float dropChancePerLevel = 0.012f;
-        [Tooltip("Каждые N уровней +1 HP к блокам")]
+        [Tooltip("Каждые N уровней +1 HP к блокам (если useLevelExtraHpOnBlocks)")]
         public int extraHpEveryLevels = 3;
         public int maxLevelExtraHp = 4;
+        [Tooltip("MVP: выкл. — HP/цвета блоков задаёт LevelGenerator")]
+        public bool useLevelExtraHpOnBlocks;
 
         [Header("Клампы скорости")]
         public float minBallSpeedMul = 0.75f;
@@ -38,5 +40,19 @@ namespace Arkanoid.Configs
         [Header("Плавность")]
         public float lerpSpeed = 2f;
         public bool showNotifications = true;
+
+        [ContextMenu("Reset to MVP Defaults")]
+        private void ResetToMvpDefaults() => MvpConfigDefaults.Apply(this);
+
+        private void OnValidate()
+        {
+            strugglingLivesLostPerLevel = Mathf.Max(1, strugglingLivesLostPerLevel);
+            easyLevelsWithoutDeath = Mathf.Max(1, easyLevelsWithoutDeath);
+            minDropChance = Mathf.Clamp01(minDropChance);
+            maxDropChance = Mathf.Clamp(maxDropChance, minDropChance, 1f);
+            minBallSpeedMul = Mathf.Clamp(minBallSpeedMul, 0.1f, 2f);
+            maxBallSpeedMul = Mathf.Max(minBallSpeedMul, maxBallSpeedMul);
+            extraHpEveryLevels = Mathf.Max(1, extraHpEveryLevels);
+        }
     }
 }

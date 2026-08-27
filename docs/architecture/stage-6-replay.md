@@ -1,6 +1,6 @@
 # Этап 6 — Replay record / play / export
 
-**Статус:** реализован (код)  
+**Статус:** принят  
 **Зависит от:** [Этап 5](stage-5-difficulty-director.md)
 
 ## Scope

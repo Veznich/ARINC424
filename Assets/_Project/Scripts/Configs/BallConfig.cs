@@ -28,5 +28,15 @@ namespace Arkanoid.Configs
 
         [Tooltip("Небольшой разброс при отскоке от стены")]
         public float wallBounceAngle = 15f;
+
+        [ContextMenu("Reset to MVP Defaults")]
+        private void ResetToMvpDefaults() => MvpConfigDefaults.Apply(this);
+
+        private void OnValidate()
+        {
+            baseSpeed = Mathf.Max(0.1f, baseSpeed);
+            maxSpeed = Mathf.Max(baseSpeed, maxSpeed);
+            speedIncrementInterval = Mathf.Max(0.1f, speedIncrementInterval);
+        }
     }
 }

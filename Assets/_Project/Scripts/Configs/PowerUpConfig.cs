@@ -35,5 +35,19 @@ namespace Arkanoid.Configs
         public float slowTimeScale = 0.6f;
         public float laserInterval = 0.5f;
         public int fireballPierceCount = 2;
+
+        [ContextMenu("Reset to MVP Defaults")]
+        private void ResetToMvpDefaults() => MvpConfigDefaults.Apply(this);
+
+        private void OnValidate()
+        {
+            fallSpeed = Mathf.Max(0.1f, fallSpeed);
+            lifetimeSeconds = Mathf.Max(1f, lifetimeSeconds);
+            maxBalls = Mathf.Max(1, maxBalls);
+            multiBallSpawnCount = Mathf.Max(1, multiBallSpawnCount);
+            slowTimeScale = Mathf.Clamp(slowTimeScale, 0.1f, 1f);
+            laserInterval = Mathf.Max(0.05f, laserInterval);
+            fireballPierceCount = Mathf.Max(1, fireballPierceCount);
+        }
     }
 }

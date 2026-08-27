@@ -19,5 +19,15 @@ namespace Arkanoid.Configs
 
         [Header("Стартовые монеты нового сейва")]
         public int startingCoins;
+
+        [ContextMenu("Reset to MVP Defaults")]
+        private void ResetToMvpDefaults() => MvpConfigDefaults.Apply(this);
+
+        private void OnValidate()
+        {
+            startLives = Mathf.Max(1, startLives);
+            maxLives = Mathf.Max(startLives, maxLives);
+            startingCoins = Mathf.Max(0, startingCoins);
+        }
     }
 }

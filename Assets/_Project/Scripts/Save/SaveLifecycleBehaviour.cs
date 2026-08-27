@@ -1,3 +1,4 @@
+using Arkanoid.Analytics;
 using Arkanoid.Core;
 using UnityEngine;
 using VContainer;
@@ -10,38 +11,50 @@ namespace Arkanoid.Save
     public sealed class SaveLifecycleBehaviour : MonoBehaviour
     {
         private ISaveService _saveService;
+        private IAnalyticsService _analytics;
         private IEventBus _eventBus;
         private IGameStateMachine _stateMachine;
 
         [Inject]
-        public void Construct(ISaveService saveService, IEventBus eventBus, IGameStateMachine stateMachine)
+        public void Construct(
+            ISaveService saveService,
+            IEventBus eventBus,
+            IGameStateMachine stateMachine,
+            IAnalyticsService analytics)
         {
             _saveService = saveService;
             _eventBus = eventBus;
             _stateMachine = stateMachine;
+            _analytics = analytics;
         }
 
         private void OnApplicationPause(bool pauseStatus)
         {
             if (pauseStatus)
             {
-                _saveService?.Save();
+                Persist();
                 TryAutoPause();
             }
         }
 
         private void OnApplicationQuit()
         {
-            _saveService?.Save();
+            Persist();
         }
 
         private void OnApplicationFocus(bool hasFocus)
         {
             if (!hasFocus)
             {
-                _saveService?.Save();
+                Persist();
                 TryAutoPause();
             }
+        }
+
+        private void Persist()
+        {
+            _saveService?.Save();
+            _analytics?.Flush();
         }
 
         /// <summary>Авто-пауза при звонке / сворачивании во время геймплея.</summary>

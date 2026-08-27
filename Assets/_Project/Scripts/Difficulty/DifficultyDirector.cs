@@ -176,7 +176,16 @@ namespace Arkanoid.Difficulty
             // Лёгкий рост скорости/дропа; плотность и цвета блоков — LevelGenerator
             _levelSpeedMul = 1f + tier * (_config.speedPerLevel * 0.65f);
             _levelDropMod = -tier * (_config.dropChancePerLevel * 0.65f);
-            _levelExtraHp = 0;
+            if (_config.useLevelExtraHpOnBlocks && _config.extraHpEveryLevels > 0)
+            {
+                _levelExtraHp = Mathf.Min(
+                    _config.maxLevelExtraHp,
+                    tier / _config.extraHpEveryLevels);
+            }
+            else
+            {
+                _levelExtraHp = 0;
+            }
         }
 
         private void OnLevelCompleted()

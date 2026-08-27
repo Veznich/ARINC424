@@ -26,6 +26,7 @@ MonoBehaviour:
   dropChancePerLevel: 0.012
   extraHpEveryLevels: 3
   maxLevelExtraHp: 4
+  useLevelExtraHpOnBlocks: 0
   minBallSpeedMul: 0.75
   maxBallSpeedMul: 1.6
   lerpSpeed: 2

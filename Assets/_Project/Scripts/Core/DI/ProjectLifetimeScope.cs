@@ -58,6 +58,9 @@ namespace Arkanoid.Core
             builder.RegisterEntryPoint<Arkanoid.Difficulty.DifficultyDirector>().AsSelf();
             builder.RegisterEntryPoint<LevelService>().AsSelf();
             builder.RegisterEntryPoint<Arkanoid.Replay.ReplayService>().AsSelf();
+            builder.RegisterEntryPoint<Arkanoid.Analytics.AnalyticsService>()
+                .AsSelf()
+                .As<Arkanoid.Analytics.IAnalyticsService>();
 
             RegisterConfigs(builder);
 
